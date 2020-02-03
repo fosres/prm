@@ -4,13 +4,23 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <errno.h>
 
-int is_regular_file(const char*path)	{
-	struct stat * path_stat = 0;
+int is_directory(const char*path)	{
+	
+	DIR * directory = opendir(path);
+	
+	if (errno==ENOTDIR)	{
+		return 0;
+	}
 
-	stat(path,path_stat);
+	if (directory!=NULL)	{
+		closedir(directory);
+		return 1;
+	}
 
-	return S_ISREG((*path_stat).st_mode);
+	return -1;
+
 }
 
 
@@ -29,7 +39,7 @@ void lsa(char*argv)	{
 		
 		printf("%s\n",de->d_name);
 
-		if(!is_regular_file(de->d_name) && !strcmp(de->d_name,".") && !strcmp(de->d_name,".."))	{
+		if(is_directory(de->d_name) && !strcmp(de->d_name,".") && !strcmp(de->d_name,".."))	{
 			
 			lsa(de->d_name);	
 						

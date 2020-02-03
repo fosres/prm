@@ -1,0 +1,3 @@
+1. First recursively compress the directory using the libtar library. It is important that each file's and directory's contents are overwritten by compression.
+2. Recursively encrypt all files in the directory and subdirectories.
+3. If you intend to remove data, recursively delete all files in directory and subdirectory

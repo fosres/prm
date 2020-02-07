@@ -32,10 +32,6 @@ void lsa(char*basepath)	{
 		}
 		
 		else if ((de->d_type==DT_DIR))	{
-			
-			printf("%s:%d\n",de->d_name,de->d_type==DT_DIR);
-
-			printf("Made it\n");
 
 			//You actually need to concatenate the full path name from argv, rename it basepath
 			
@@ -45,14 +41,14 @@ void lsa(char*basepath)	{
 
 			strncat(fullname,de->d_name,2048);
 
-			printf("%s\n",fullname);
+			printf("%s:directory\n",fullname);
 
 			lsa(fullname);
 
 			memset(fullname,0x0,2048);
 		}
 
-		else	{
+		else if ((de->d_type==DT_REG))	{
 			
 			strncat(fullname,basepath,2048);
 
@@ -60,10 +56,15 @@ void lsa(char*basepath)	{
 
 			strncat(fullname,de->d_name,2048);
 			
-			printf("%s:%d\n",fullname,de->d_type==DT_REG);
+			printf("%s:file\n",fullname);
 			
 			memset(fullname,0x0,2048);
 		}
+
+		else	{
+
+			continue;
+		}	
 
 	}
 

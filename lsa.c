@@ -26,8 +26,12 @@ void lsa(char*basepath)	{
 
 	while ((de = readdir(dr)) != NULL)		{
 		
+		if (((strstr(de->d_name,".")-strstr(de->d_name,de->d_name)==0)) || ((strstr(de->d_name,"..")-strstr(de->d_name,de->d_name))==0) )	{
+			
+			continue;
+		}
 		
-		if ((de->d_type==DT_DIR)&&(strstr(de->d_name,".")==NULL)&&(strstr(de->d_name,"..")==NULL))	{
+		else if ((de->d_type==DT_DIR))	{
 			
 			printf("%s:%d\n",de->d_name,de->d_type==DT_DIR);
 
@@ -47,6 +51,20 @@ void lsa(char*basepath)	{
 
 			memset(fullname,0x0,2048);
 		}
+
+		else	{
+			
+			strncat(fullname,basepath,2048);
+
+			strncat(fullname,"/",2048);
+
+			strncat(fullname,de->d_name,2048);
+			
+			printf("%s:%d\n",fullname,de->d_type==DT_REG);
+			
+			memset(fullname,0x0,2048);
+		}
+
 	}
 
 	closedir(dr);

@@ -11,9 +11,13 @@
 
 void lsa(char*basepath)	{
 	
-	struct dirent *de; //Pointer for entry
+	struct dirent *de = 0; //Pointer for entry
 
 	DIR * dr = opendir(basepath);
+
+	unsigned char fullname[2048];
+
+	memset(fullname,0x0,2048);
 
 	if (dr == NULL) // opendir
 	{
@@ -22,15 +26,26 @@ void lsa(char*basepath)	{
 
 	while ((de = readdir(dr)) != NULL)		{
 		
-		printf("%s:%d\n",de->d_name,de->d_type==DT_DIR);
 		
-		if ((de->d_type==DT_DIR)&&!(strcmp(de->d_name,".")==0)&&!(strcmp(de->d_name,"..")==0))	{
+		if ((de->d_type==DT_DIR)&&(strstr(de->d_name,".")==NULL)&&(strstr(de->d_name,"..")==NULL))	{
 			
+			printf("%s:%d\n",de->d_name,de->d_type==DT_DIR);
+
 			printf("Made it\n");
 
 			//You actually need to concatenate the full path name from argv, rename it basepath
+			
+			strncat(fullname,basepath,2048);
 
-			lsa(de->d_name);
+			strncat(fullname,"/",2048);
+
+			strncat(fullname,de->d_name,2048);
+
+			printf("%s\n",fullname);
+
+			lsa(fullname);
+
+			memset(fullname,0x0,2048);
 		}
 	}
 

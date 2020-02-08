@@ -187,6 +187,8 @@ int main(int argc,char**argv)	{
 		return 1;
 	}
 #endif
+
+#if 0
 	unsigned char output[crypto_pwhash_STRBYTES];
 
 	printf("%llu\n",crypto_pwhash_STRBYTES);
@@ -244,7 +246,8 @@ int main(int argc,char**argv)	{
 	sodium_munlock(pwd,2048*sizeof(unsigned char));
 	
 	sodium_munlock(repwd,2048*sizeof(unsigned char));
-	
+#endif	
+
 	unsigned char out[crypto_secretstream_xchacha20poly1305_KEYBYTES];
 
 	unsigned char salt[crypto_pwhash_SALTBYTES];
@@ -259,6 +262,27 @@ int main(int argc,char**argv)	{
 
 	sodium_mlock(out,crypto_pwhash_STRBYTES);
 
+	unsigned char pwd[2048];
+
+	memset(pwd,0x0,2048);
+
+	sodium_mlock(pwd,2048*sizeof(unsigned char));
+
+	size_t n = 0;
+
+	unsigned char * c = pwd;
+	
+	printf("Enter Password:");
+
+	while ( ( (*c = getchar()) != 0xa ) && ( n < 2048 ) )	{
+		
+		c++;
+
+		n++;
+	}
+
+	printf("Entered Passsword:%s\n",pwd);
+
 	if(crypto_pwhash(out,crypto_pwhash_STRBYTES,pwd,strnlen(pwd,2048),salt,crypto_pwhash_OPSLIMIT_SENSITIVE,crypto_pwhash_MEMLIMIT_SENSITIVE,crypto_pwhash_ALG_DEFAULT) != 0)	{
 		fprintf(stderr,"Error: Ran out of memory for pwhash\n");
 
@@ -269,6 +293,19 @@ int main(int argc,char**argv)	{
 
 	printf("%llu\n",strnlen(out,crypto_secretstream_xchacha20poly1305_KEYBYTES));
 	
+	if (encrypt("/home/tsalim/git/prm/test.c.prm","/home/tsalim/git/prm/test.c",out) != 0)	{
+		
+		fprintf(stderr,"Error: Encryption failed\n");	
+
+		return 1;
+	}
+
+	if (decrypt("test.c.prm.decrypt.c","test.c.prm",out) != 0)	{
+		
+		fprintf(stderr,"Error: Decryption failed\n");	
+		
+		return 1;
+	}
 	sodium_munlock(salt,crypto_pwhash_SALTBYTES);
 	
 	sodium_munlock(out,crypto_pwhash_STRBYTES);

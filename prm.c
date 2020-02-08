@@ -158,16 +158,15 @@ ret:
 
 }
 
-int main(void)	{
-	
+int main(int argc,char**argv)	{
+#if 0	
 	unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES];
 
 	if (sodium_init() != 0)	{
 		return 1;
 	}	
 	crypto_secretstream_xchacha20poly1305_keygen(key);
-	
-#if 0
+#if 0	
 	if (encrypt("/home/tsalim/git/prm/test.c.prm","/home/tsalim/git/prm/test.c",key) != 0)	{
 		
 		fprintf(stderr,"Error: Encryption failed\n");	
@@ -182,6 +181,40 @@ int main(void)	{
 		
 		return 1;
 	}
+#endif
+	unsigned char output[crypto_pwhash_STRBYTES];
+	
+	unsigned char pwd[2048];
+
+	memset(pwd,0x0,2048);
+	
+	sodium_mlock(pwd,2048*sizeof(unsigned char));
+
+	sodium_mlock(output,crypto_pwhash_STRBYTES);
+
+	size_t n = 0;
+
+	unsigned char * c = pwd;
+	
+	printf("Enter Password:");
+
+	while ( ( (*c = getchar()) != 0xa ) && ( n < 2048 ) )	{
+		
+		c++;
+
+		n++;
+	}
+
+	printf("Entered Passsword:%s\n",pwd);
+
+	if (crypto_pwhash_str(output,pwd,strnlen(pwd,2048),crypto_pwhash_OPSLIMIT_SENSITIVE,crypto_pwhash_MEMLIMIT_SENSITIVE)==-1)	{
+		printf("Failed to make password_hash\n");
+	}
+	printf("%s\n",output);
+
+	sodium_munlock(output,crypto_pwhash_STRBYTES);
+
+	sodium_munlock(pwd,2048*sizeof(unsigned char));
 
 	return 0;
 }

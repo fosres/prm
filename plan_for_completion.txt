@@ -1,0 +1,3 @@
+You are here to create a secure backu tool that copies ALL contents of a directory (including contents of subsequent directories) and automatically encrypts them to a destination directory using the argon2i hash.
+
+You must create a file that stores the hash of passwords for a specific directory...or wait do you?

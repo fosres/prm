@@ -1,1 +1,6 @@
-‡¯»ƒã®ß NÄõİŠ„qn–ı¿÷vsà¦yÀô°V¬”ÒP·v÷•
+#include <stdio.h>
+
+int main(void)	{
+
+	printf("Testing\n");
+}

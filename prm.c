@@ -41,9 +41,9 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 
 	}
 
-	if ( ( out = fopen(src,"wb")) == NULL )	{
+	if ( ( out = fopen(dest,"wb")) == NULL )	{
 		
-		fprintf(stderr,"Error: Failed to read target file\n");
+		fprintf(stderr,"Error: Failed to create target file\n");
 		
 		exit(1);
 
@@ -65,7 +65,7 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 
 		fwrite(buf_out,1,(size_t) out_len,out);
 
-	} while ( !eof);
+	} while (!eof);
 
 	fclose(out);
 
@@ -111,8 +111,8 @@ static int decrypt(const char*dest,const char*src,const unsigned char key[crypto
 
 	}
 
-	if ( ( out = fopen(src,"wb")) == NULL )	{
-		fprintf(stderr,"Error: Failed to read source file\n");
+	if ( ( out = fopen(dest,"wb")) == NULL )	{
+		fprintf(stderr,"Error: Failed to create target file\n");
 		
 		exit(1);
 
@@ -160,7 +160,11 @@ int main(void)	{
 		return 1;
 	}	
 	crypto_secretstream_xchacha20poly1305_keygen(key);
-	if (encrypt("test.c.prm","test.c",key) != 0)	{
+	
+	if (encrypt("/home/tsalim/git/prm/test.c.prm","/home/tsalim/git/prm/test.c",key) != 0)	{
+		
+		fprintf(stderr,"Error: Encryption failed\n");	
+
 		return 1;
 	}
 

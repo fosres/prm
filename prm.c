@@ -145,6 +145,12 @@ static int decrypt(const char*dest,const char*src,const unsigned char key[crypto
 	ret = 0;
 
 ret:
+	if (ret==-1)	{ 
+		
+		fprintf(stderr,"Decryption failed, printing empty file\n");
+
+	}
+
 	fclose(in);
 	fclose(out);
 
@@ -161,14 +167,19 @@ int main(void)	{
 	}	
 	crypto_secretstream_xchacha20poly1305_keygen(key);
 	
+#if 0
 	if (encrypt("/home/tsalim/git/prm/test.c.prm","/home/tsalim/git/prm/test.c",key) != 0)	{
 		
 		fprintf(stderr,"Error: Encryption failed\n");	
 
 		return 1;
 	}
-
+#endif	
+	
 	if (decrypt("test.c.prm.decrypt.c","test.c.prm",key) != 0)	{
+		
+		fprintf(stderr,"Error: Decryption failed\n");	
+		
 		return 1;
 	}
 

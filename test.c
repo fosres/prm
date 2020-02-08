@@ -1,6 +1,1 @@
-#include <stdio.h>
-int main(void)	{
-
-int c = EOF;
-printf("%x\n",c);
-}
+‡¯»ƒã®ß NÄõİŠ„qn–ı¿÷vsà¦yÀô°V¬”ÒP·v÷•

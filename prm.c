@@ -34,6 +34,7 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 	unsigned char tag = 0;
 	
 	if ( (in = fopen(src,"rb")) == NULL )	{
+		
 		fprintf(stderr,"Error: Failed to read source file\n");
 		
 		exit(1);
@@ -41,7 +42,8 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 	}
 
 	if ( ( out = fopen(src,"wb")) == NULL )	{
-		fprintf(stderr,"Error: Failed to read source file\n");
+		
+		fprintf(stderr,"Error: Failed to read target file\n");
 		
 		exit(1);
 
@@ -52,7 +54,9 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 	fwrite(header,1,sizeof(header),out);
 
 	do	{
+		
 		rlen = fread(buf_in,1,sizeof(buf_in),in);
+		
 		eof = feof(in);
 
 		tag = eof ? crypto_secretstream_xchacha20poly1305_TAG_FINAL : 0;
@@ -96,7 +100,7 @@ static int decrypt(const char*dest,const char*src,const unsigned char key[crypto
 
 	unsigned eof = 0;
 
-	int ret = - 1;
+	int ret = -1;
 
 	unsigned char tag = 0;
 
@@ -156,7 +160,7 @@ int main(void)	{
 		return 1;
 	}	
 	crypto_secretstream_xchacha20poly1305_keygen(key);
-	if (encrypt("test.c","test.c.prm",key) != 0)	{
+	if (encrypt("test.c.prm","test.c",key) != 0)	{
 		return 1;
 	}
 

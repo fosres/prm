@@ -168,5 +168,9 @@ int main(void)	{
 		return 1;
 	}
 
+	if (decrypt("test.c.prm.decrypt.c","test.c.prm",key) != 0)	{
+		return 1;
+	}
+
 	return 0;
 }

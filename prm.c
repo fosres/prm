@@ -227,6 +227,8 @@ int main(int argc,char**argv)	{
 	
 	printf("Reenter Password:");
 
+	n = 0;
+
 	while ( ( (*r = getchar()) != 0xa ) && ( n < 2048 ) )	{
 		
 		r++;
@@ -234,9 +236,7 @@ int main(int argc,char**argv)	{
 		n++;
 	}
 
-	printf("%s:%d\n",output,crypto_pwhash_str_verify(output,repwd,2048));
-
-	
+	printf("%s:%d\n",output,crypto_pwhash_str_verify(output,repwd,strnlen(repwd,2048)));
 
 	sodium_munlock(output,crypto_pwhash_STRBYTES);
 

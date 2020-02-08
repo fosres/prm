@@ -70,11 +70,11 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 	return 0;
 }
 
-static int decrypt(const char*dest,const char*src,const unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES],const unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES])	{
+static int decrypt(const char*dest,const char*src,const unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES])	{
 	
 	unsigned char buf_in[CHUNK_SIZE + crypto_secretstream_xchacha20poly1305_ABYTES];
 	
-	memset(buf_in,0x0,sizeof(CHUNK+SIZE + crypto_secretstream_xchacha20poly1305_ABYTES));
+	memset(buf_in,0x0,sizeof(CHUNK_SIZE + crypto_secretstream_xchacha20poly1305_ABYTES));
 
 	unsigned char buf_out[CHUNK_SIZE];
 	
@@ -86,7 +86,8 @@ static int decrypt(const char*dest,const char*src,const unsigned char key[crypto
 
 	crypto_secretstream_xchacha20poly1305_state st;
 
-	memset(crypto_secretstream_xchacha20poly1305_state,0x0,sizoef(crypto_secretstream_xchacha20poly1305_state));
+	memset(&st,0x0,sizeof(crypto_secretstream_xchacha20poly1305_state));
+
 	FILE * out = 0, * in = 0;
 
 	unsigned long long out_len = 0;
@@ -99,9 +100,62 @@ static int decrypt(const char*dest,const char*src,const unsigned char key[crypto
 
 	unsigned char tag = 0;
 
+	if ( (in = fopen(src,"rb")) == NULL )	{
+		fprintf(stderr,"Error: Failed to read source file\n");
+		
+		exit(1);
+
+	}
+
+	if ( ( out = fopen(src,"wb")) == NULL )	{
+		fprintf(stderr,"Error: Failed to read source file\n");
+		
+		exit(1);
+
+	}
+	
+	fread(header,1,sizeof(header),in);
+
+	if ( crypto_secretstream_xchacha20poly1305_init_pull(&st,header,key) != 0)	{
+		goto ret; // incomplete header
+	}
+
+	do	{
+			rlen = fread(buf_in,1,sizeof(buf_in),in);
+			eof = feof(in);
+
+			if (crypto_secretstream_xchacha20poly1305_pull(&st,buf_out,&out_len,&tag,buf_in,rlen,NULL,0) != 0)	{
+			goto ret; //corrupted chunk;	
+
+			}
+
+		if (tag == crypto_secretstream_xchacha20poly1305_TAG_FINAL && !eof)	{
+			goto ret; //premature end (end of file reached before the end of the stream
+		}
+
+		fwrite(buf_out,1,(size_t)out_len,out);
+		
+
+	} while(!eof);
+
+	ret = 0;
+
+ret:
+	fclose(in);
+	fclose(out);
+
+	return ret;
+
 }
 
 int main(void)	{
 	
+	unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES];
+
+	if (sodium_init() != 0)	{
+		return 1;
+	}	
+	crypto_secretstream_xchacha20poly1305_keygen(key);
+	if (encrypt
 	return 0;
 }

@@ -26,11 +26,10 @@ void lsa(char*basepath)	{
 
 	while ((de = readdir(dr)) != NULL)		{
 		
-		if (((strstr(de->d_name,".")-strstr(de->d_name,de->d_name)==0)) || ((strstr(de->d_name,"..")-strstr(de->d_name,de->d_name))==0) )	{
-			
+		if (	(strcmp(de->d_name,".")==0) || (strcmp(de->d_name,"..")==0)	)	{
 			continue;
 		}
-		
+
 		else if ((de->d_type==DT_DIR))	{
 
 			//You actually need to concatenate the full path name from argv, rename it basepath

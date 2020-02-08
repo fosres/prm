@@ -156,6 +156,9 @@ int main(void)	{
 		return 1;
 	}	
 	crypto_secretstream_xchacha20poly1305_keygen(key);
-	if (encrypt
+	if (encrypt("test.c","test.c.prm",key) != 0)	{
+		return 1;
+	}
+
 	return 0;
 }

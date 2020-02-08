@@ -159,6 +159,10 @@ ret:
 }
 
 int main(int argc,char**argv)	{
+	
+	if (sodium_init() != 0)	{
+		return 1;
+	}	
 #if 0	
 	unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES];
 
@@ -183,6 +187,8 @@ int main(int argc,char**argv)	{
 	}
 #endif
 	unsigned char output[crypto_pwhash_STRBYTES];
+
+	printf("%llu\n",crypto_pwhash_STRBYTES);
 	
 	unsigned char pwd[2048];
 
@@ -210,11 +216,33 @@ int main(int argc,char**argv)	{
 	if (crypto_pwhash_str(output,pwd,strnlen(pwd,2048),crypto_pwhash_OPSLIMIT_SENSITIVE,crypto_pwhash_MEMLIMIT_SENSITIVE)==-1)	{
 		printf("Failed to make password_hash\n");
 	}
-	printf("%s\n",output);
+
+	unsigned char repwd[2048];
+
+	memset(repwd,0x0,2048);
+
+	sodium_mlock(repwd,2048*sizeof(unsigned char));
+
+	unsigned char * r = repwd;
+	
+	printf("Reenter Password:");
+
+	while ( ( (*r = getchar()) != 0xa ) && ( n < 2048 ) )	{
+		
+		r++;
+
+		n++;
+	}
+
+	printf("%s:%d\n",output,crypto_pwhash_str_verify(output,repwd,2048));
+
+	
 
 	sodium_munlock(output,crypto_pwhash_STRBYTES);
 
 	sodium_munlock(pwd,2048*sizeof(unsigned char));
+	
+	sodium_munlock(repwd,2048*sizeof(unsigned char));
 
 	return 0;
 }

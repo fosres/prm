@@ -74,6 +74,7 @@ void lsa(char*basepath)	{
 }
 
 void do_chmod(const unsigned char*src,const unsigned char*dest)	{
+	
 	struct stat * tmp = 0;
 
 	memset(tmp,0x0,sizeof(stat));
@@ -84,15 +85,20 @@ void do_chmod(const unsigned char*src,const unsigned char*dest)	{
 }
 
 void do_chown(const unsigned char * destpath,const unsigned char * srcpath,const unsigned char * user_name,const unsigned char * group_name)	{
+	
 	uid_t	uid = 0;
 	
 	gid_t	gid = 0;
 
-	struct passwd * pwd = 0;
+	struct stat * info = 0;
 
-	struct group * grp = 0;
+	memset(info,0x0,sizeof(stat));
 
-	pwd=getpwnam(user_name);
+	stat(srcpath,info);
+
+	struct passwd * pwd = getpwuid((*info).st_uid);
+
+	struct group * grp = getgrgid((*info).st_gid);
 
 	if (pwd == NULL)	{
 		
@@ -101,10 +107,8 @@ void do_chown(const unsigned char * destpath,const unsigned char * srcpath,const
 		exit(1);
 
 	}	
-
+	
 	uid = pwd->pw_uid;
-
-	grp = getgrnam(group_name);
 
 	if (grp==NULL)	{
 		

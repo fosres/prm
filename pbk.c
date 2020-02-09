@@ -3,6 +3,7 @@ https://stackoverflow.com/questions/8778834/change-owner-and-group-in-c
 
 https://stackoverflow.com/questions/43627117/unix-copy-a-file-with-original-permission-in-c?noredirect=1&lq=1
 
+https://stackoverflow.com/questions/7624127/finding-the-owner-and-group-of-a-file-as-a-string
 #endif
 
 #include <stdio.h>
@@ -166,95 +167,14 @@ ret:
 	return ret;
 
 }
+//copies file contents, chmod permissions, and chown permissions to destination
+int archive(unsigned char*destfile,unsigned char*srcfile,)
 
 int main(int argc,char**argv)	{
 	
 	if (sodium_init() != 0)	{
 		return 1;
 	}	
-#if 0	
-	unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES];
-
-	if (sodium_init() != 0)	{
-		return 1;
-	}	
-	crypto_secretstream_xchacha20poly1305_keygen(key);
-#if 0	
-	if (encrypt("/home/tsalim/git/prm/test.c.prm","/home/tsalim/git/prm/test.c",key) != 0)	{
-		
-		fprintf(stderr,"Error: Encryption failed\n");	
-
-		return 1;
-	}
-#endif	
-	
-	if (decrypt("test.c.prm.decrypt.c","test.c.prm",key) != 0)	{
-		
-		fprintf(stderr,"Error: Decryption failed\n");	
-		
-		return 1;
-	}
-#endif
-
-#if 0
-	unsigned char output[crypto_pwhash_STRBYTES];
-
-	printf("%llu\n",crypto_pwhash_STRBYTES);
-	
-	unsigned char pwd[2048];
-
-	memset(pwd,0x0,2048);
-	
-	sodium_mlock(pwd,2048*sizeof(unsigned char));
-
-	sodium_mlock(output,crypto_pwhash_STRBYTES);
-
-	size_t n = 0;
-
-	unsigned char * c = pwd;
-	
-	printf("Enter Password:");
-
-	while ( ( (*c = getchar()) != 0xa ) && ( n < 2048 ) )	{
-		
-		c++;
-
-		n++;
-	}
-
-	printf("Entered Passsword:%s\n",pwd);
-
-	if (crypto_pwhash_str(output,pwd,strnlen(pwd,2048),crypto_pwhash_OPSLIMIT_SENSITIVE,crypto_pwhash_MEMLIMIT_SENSITIVE)==-1)	{
-		printf("Failed to make password_hash\n");
-	}
-
-	unsigned char repwd[2048];
-
-	memset(repwd,0x0,2048);
-
-	sodium_mlock(repwd,2048*sizeof(unsigned char));
-
-	unsigned char * r = repwd;
-	
-	printf("Reenter Password:");
-
-	n = 0;
-
-	while ( ( (*r = getchar()) != 0xa ) && ( n < 2048 ) )	{
-		
-		r++;
-
-		n++;
-	}
-
-	printf("%s:%d\n",output,crypto_pwhash_str_verify(output,repwd,strnlen(repwd,2048)));
-
-	sodium_munlock(output,crypto_pwhash_STRBYTES);
-
-	sodium_munlock(pwd,2048*sizeof(unsigned char));
-	
-	sodium_munlock(repwd,2048*sizeof(unsigned char));
-#endif	
 
 	unsigned char out[crypto_secretstream_xchacha20poly1305_KEYBYTES];
 

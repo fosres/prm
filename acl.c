@@ -20,7 +20,7 @@ bool file_exists(const unsigned char*file)	{
 
 }
 
-bool dir_exists(const unsigned char*directory)	{
+DIR * dir_exists(const unsigned char*directory)	{
 	
 	return opendir(directory);
 
@@ -141,7 +141,11 @@ void delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 				unmark(dest_fullname);	
 			}
 
-			delete(dest_fullname,src_fullname);
+			else if ( dir_exists(dest_fullname) && dir_exists(src_fullname) ) {
+
+				delete(dest_fullname,src_fullname);
+
+			}
 
 			memset(dest_fullname,0x0,2048);
 			

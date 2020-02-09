@@ -73,18 +73,18 @@ void lsa(char*basepath)	{
 
 }
 
-void do_chmod(const unsigned char*src,const unsigned char*dest)	{
+void do_chmod(const unsigned char*dest,const unsigned char*src)	{
 	
-	struct stat * tmp = 0;
+	struct stat tmp;
 
-	memset(tmp,0x0,sizeof(stat));
+	memset(&tmp,0x0,sizeof(stat));
 
-	stat(src,tmp);
+	stat(src,&tmp);
 
-	chmod(dest,(*tmp).st_mode);
+	chmod(dest,tmp.st_mode);
 }
 
-void do_chown(const unsigned char * destpath,const unsigned char * srcpath,const unsigned char * user_name,const unsigned char * group_name)	{
+void do_chown(const unsigned char * destpath,const unsigned char * srcpath)	{
 	
 	uid_t	uid = 0;
 	

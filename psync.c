@@ -13,7 +13,7 @@ https://stackoverflow.com/questions/7328327/how-to-get-files-owner-name-in-linux
 #include <stdlib.h>
 #include <unistd.h>
 #include <sodium.h>
-#include "attr.h"
+#include "acl.h"
 
 #define CHUNK_SIZE	4096
 
@@ -170,7 +170,7 @@ ret:
 
 }
 //copies file contents, chmod permissions, and chown permissions to destination
-int archive(unsigned char*destfile,unsigned char*srcfile,)
+int archive(unsigned char*destfile,unsigned char*srcfile);
 
 int main(int argc,char**argv)	{
 	
@@ -231,6 +231,8 @@ int main(int argc,char**argv)	{
 		return 1;
 	}
 
+	do_chmod("/home/tsalim/git/prm/test.c.prm","/home/tsalim/git/prm/test.c");
+
 	if (decrypt("test.c.prm.decrypt.c","test.c.prm",out) != 0)	{
 		
 		fprintf(stderr,"Error: Decryption failed\n");	
@@ -238,11 +240,13 @@ int main(int argc,char**argv)	{
 		return 1;
 	}
 	
+	do_chmod("/home/tsalim/git/prm/test.c.prm.decrypt.c","/home/tsalim/git/prm/test.c.prm");
+	
 	sodium_munlock(salt,crypto_pwhash_SALTBYTES);
 	
 	sodium_munlock(out,crypto_pwhash_STRBYTES);
-	
-	lsa(argv[1]);
+
+//	lsa(argv[1]);
 
 	return 0;
 }

@@ -3,3 +3,7 @@ In order to compile psync, simply execute the following in the command terminal:
 gcc psync.c acl.c acl.h -o psync.o -lsodium
 
 NOTE: You must have the libsodium library installed in your computer's source files and library dependencies directories.
+
+If you are using ArchLinux, then just run the following in terminal:
+
+sudo pacman -S libsodium

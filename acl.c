@@ -36,16 +36,12 @@ int unmark(const unsigned char*srcpath)	{
 
 	memset(src_fullname,0x0,2048);
 
-	int r2 = -1;
-
-	int r = -1;
-
 	if (dr == NULL) // opendir
 	{
 		printf("Could not open current directory");
 	}
 
-	while ((de = readdir(dr)) != NULL)		{
+	while ((de = readdir(dr)) != NULL)	{
 		
 		if (	(strcmp(de->d_name,".")==0) || (strcmp(de->d_name,"..")==0)	)	{
 			
@@ -62,9 +58,7 @@ int unmark(const unsigned char*srcpath)	{
 
 			strncat(src_fullname,de->d_name,2048);
 
-//			printf("%s:directory\n",src_fullname);
-
-			r2 = unmark(src_fullname);
+			unmark(src_fullname);
 
 			memset(src_fullname,0x0,2048);
 		}
@@ -76,31 +70,19 @@ int unmark(const unsigned char*srcpath)	{
 			strncat(src_fullname,"/",2048);
 			
 			strncat(src_fullname,de->d_name,2048);
-			
-//			printf("%s:file\n",src_fullname);
 				
-			r2 = remove(src_fullname);
+			remove(src_fullname);
 			
 			memset(src_fullname,0x0,2048);
 		
 		}
-
-		else	{
-
-			continue;
-		}	
-		
-		r = r2;
 	}
 
 	closedir(dr);
 	
-	if ( !r )	{
-		
-		r = rmdir(srcpath);
-
-	}
-
+		rmdir(srcpath);
+	
+	return r;
 
 }
 

@@ -90,7 +90,7 @@ void unmark(const unsigned char*srcpath)	{
 
 //present in the srcpath directory
 
-int delete(const unsigned char*destpath,const unsigned char*srcpath)	{
+void delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 	
 	struct dirent *de = 0; //Pointer for entry
 
@@ -304,7 +304,7 @@ void do_chown(const unsigned char * dest,const unsigned char * src)	{
 
 int main(int argc,char**argv)	{
 	
-	unmark(argv[1]);
+	delete("/home/tsalim/git/prm/swiss_bkup","/home/tsalim/git/prm/swiss");
 
 	return 0;
 }

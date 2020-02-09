@@ -6,6 +6,8 @@ https://stackoverflow.com/questions/43627117/unix-copy-a-file-with-original-perm
 https://stackoverflow.com/questions/7624127/finding-the-owner-and-group-of-a-file-as-a-string
 
 https://stackoverflow.com/questions/7328327/how-to-get-files-owner-name-in-linux-using-c
+
+https://stackoverflow.com/questions/2256945/removing-a-non-empty-directory-programmatically-in-c-or-c
 #endif
 
 #include <stdio.h>
@@ -146,6 +148,7 @@ static int decrypt(const char*dest,const char*src,const unsigned char key[crypto
 			}
 
 		if (tag == crypto_secretstream_xchacha20poly1305_TAG_FINAL && !eof)	{
+			
 			goto ret; //premature end (end of file reached before the end of the stream
 		}
 
@@ -164,11 +167,13 @@ ret:
 	}
 
 	fclose(in);
+	
 	fclose(out);
 
 	return ret;
 
 }
+
 //copies file contents, chmod permissions, and chown permissions to destination
 int archive(unsigned char*destfile,unsigned char*srcfile);
 

@@ -10,6 +10,88 @@
 #include <errno.h>
 
 
+int delete(const unsigned char*destpath,const unsigned char*srcpath)	{
+	
+	struct dirent *de = 0; //Pointer for entry
+
+	DIR * dr = opendir(srcpath);
+
+	unsigned char src_fullname[2048];
+
+	memset(src_fullname,0x0,2048);
+
+	unsigned char dest_fullname[2048];
+	
+	memset(dest_fullname,0x0,2048);
+
+	unsigned char extension[2048];
+
+	memset(extension,0x0,2048);
+
+	int r2 = -1;
+
+	int r = -1;
+
+	if (dr == NULL) // opendir
+	{
+		printf("Could not open current directory");
+	}
+
+	while ((de = readdir(dr)) != NULL)		{
+		
+		if (	(strcmp(de->d_name,".")==0) || (strcmp(de->d_name,"..")==0)	)	{
+			
+			continue;
+		}
+
+		else if ((de->d_type==DT_DIR))	{
+
+			//You actually need to concatenate the full path name from argv, rename it srcpath
+			
+			strncat(src_fullname,srcpath,2048);
+
+			strncat(src_fullname,"/",2048);
+
+			strncat(src_fullname,de->d_name,2048);
+			
+			strncat(dest_fullname,destpath,2048);
+
+			strncat(dest_fullname,"/",2048);
+
+			strncat(dest_fullname,de->d_name,2048);
+
+//			printf("%s:directory\n",src_fullname);
+
+			r2 = delete(src_fullname);
+
+			memset(src_fullname,0x0,2048);
+		}
+
+		else if ((de->d_type==DT_REG))	{
+			
+			strncat(src_fullname,srcpath,2048);
+
+			strncat(src_fullname,"/",2048);
+
+			strncat(src_fullname,de->d_name,2048);
+			
+//			printf("%s:file\n",src_fullname);
+			
+			r2 = remove(src_fullname);
+			
+			memset(src_fullname,0x0,2048);
+		}
+
+		else	{
+
+			continue;
+		}	
+
+	}
+
+	closedir(dr);
+
+}
 
 void lsa(char*basepath)	{
 	

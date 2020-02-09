@@ -73,7 +73,17 @@ void lsa(char*basepath)	{
 
 }
 
-void do_chown(const unsigned char * destpath,const unsigned char * srcpath,const unsigned char * group_name)	{
+void do_chmod(const unsigned char*src,const unsigned char*dest)	{
+	struct stat * tmp = 0;
+
+	memset(tmp,0x0,sizeof(stat));
+
+	stat(src,tmp);
+
+	chmod(dest,(*tmp).st_mode);
+}
+
+void do_chown(const unsigned char * destpath,const unsigned char * srcpath,const unsigned char * user_name,const unsigned char * group_name)	{
 	uid_t	uid = 0;
 	
 	gid_t	gid = 0;
@@ -86,7 +96,8 @@ void do_chown(const unsigned char * destpath,const unsigned char * srcpath,const
 
 	if (pwd == NULL)	{
 		
-		fprintf(stderr,"%s:Failed to get uid of sourcefile\n",basepath);	
+		fprintf(stderr,"%s:Failed to get uid of sourcefile\n",srcpath);	
+		
 		exit(1);
 
 	}	
@@ -97,7 +108,7 @@ void do_chown(const unsigned char * destpath,const unsigned char * srcpath,const
 
 	if (grp==NULL)	{
 		
-		fprintf(stderr,"%s:Failed to get gid of destination file\n",basepath);
+		fprintf(stderr,"%s:Failed to get gid of destination file\n",srcpath);
 		
 		exit(1);	
 	}
@@ -113,10 +124,12 @@ void do_chown(const unsigned char * destpath,const unsigned char * srcpath,const
 
 }
 
+#if 0
 int main(int argc,char**argv)	{
 	
 	lsa(argv[1]);
-	
-	
+
 	return 0;
 }
+#endif
+

@@ -319,6 +319,8 @@ int main(int argc,char**argv)	{
 	sodium_munlock(salt,crypto_pwhash_SALTBYTES);
 	
 	sodium_munlock(out,crypto_pwhash_STRBYTES);
+	
+	lsa(argv[1]);
 
 	return 0;
 }

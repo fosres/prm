@@ -70,7 +70,7 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 	
 	if ( (in = fopen(src,"rb")) == NULL )	{
 		
-		fprintf(stderr,"Error: Failed to read source file\n");
+		fprintf(stderr,"Error: Failed to read source file during encryption\n");
 		
 		exit(1);
 
@@ -78,7 +78,7 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 
 	if ( ( out = fopen(dest,"wb")) == NULL )	{
 		
-		fprintf(stderr,"Error: Failed to create target file\n");
+		fprintf(stderr,"Error: Failed to create target file during encryption\n");
 		
 		exit(1);
 
@@ -140,14 +140,15 @@ static int decrypt(const char*dest,const char*src,const unsigned char key[crypto
 	unsigned char tag = 0;
 
 	if ( (in = fopen(src,"rb")) == NULL )	{
-		fprintf(stderr,"Error: Failed to read source file\n");
+		fprintf(stderr,"Error: Failed to read source file during decryption\n");
 		
 		exit(1);
 
 	}
 
 	if ( ( out = fopen(dest,"wb")) == NULL )	{
-		fprintf(stderr,"Error: Failed to create target file\n");
+		
+		fprintf(stderr,"Error: Failed to create target file during decryption\n");
 		
 		exit(1);
 
@@ -321,6 +322,8 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 
 void dsync(const unsigned char*destpath,const unsigned char*srcpath,const unsigned char*out)	{
 	
+	create_dir_clone(destpath,srcpath);
+
 	struct dirent *de = 0; //Pointer for entry
 
 	DIR * dr = opendir(srcpath);
@@ -385,6 +388,10 @@ void dsync(const unsigned char*destpath,const unsigned char*srcpath,const unsign
 			strncat(dest_fullname,de->d_name,2048);
 			
 			dencp(dest_fullname,src_fullname,out);
+
+			do_chmod(dest_fullname,src_fullname);
+
+			do_chown(dest_fullname,src_fullname);
 
 			memset(src_fullname,0x0,2048);
 			
@@ -457,9 +464,9 @@ int main(int argc,char**argv)	{
 
 	printf("outlen:%llu\n",strnlen(out,crypto_secretstream_xchacha20poly1305_KEYBYTES));
 
-	ensync(argv[2],argv[1],out);
+//	ensync(argv[2],argv[1],out);
 	
-//	dsync(argv[2],argv[1],out);
+	dsync(argv[2],argv[1],out);
 
 	sodium_munlock(salt,crypto_pwhash_SALTBYTES);
 	

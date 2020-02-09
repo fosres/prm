@@ -25,8 +25,9 @@ bool dir_exists(const unsigned char*directory)	{
 	return opendir(directory);
 
 }
+//unmark is as powerful as the BASH "rm -r". Use with caution! SERIOUSLY!!!!
 
-int unmark(const unsigned char*srcpath)	{
+void unmark(const unsigned char*srcpath)	{
 	
 	struct dirent *de = 0; //Pointer for entry
 
@@ -38,7 +39,9 @@ int unmark(const unsigned char*srcpath)	{
 
 	if (dr == NULL) // opendir
 	{
-		printf("Could not open current directory");
+		remove(srcpath);
+
+		return;
 	}
 
 	while ((de = readdir(dr)) != NULL)	{
@@ -81,10 +84,11 @@ int unmark(const unsigned char*srcpath)	{
 	closedir(dr);
 	
 		rmdir(srcpath);
-	
-	return r;
 
 }
+//delete will only delete the files in the destpath directory that are NOT
+
+//present in the srcpath directory
 
 int delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 	
@@ -103,10 +107,6 @@ int delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 	unsigned char leaf[2048];
 
 	memset(leaf,0x0,2048);
-
-	int r2 = -1;
-
-	int r = -1;
 
 	if (dr == NULL) // opendir
 	{
@@ -136,9 +136,7 @@ int delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 
 			strncat(dest_fullname,de->d_name,2048);
 
-//			printf("%s:directory\n",src_fullname);
-
-			r2 = delete(dest_fullname,src_fullname);
+			delete(dest_fullname,src_fullname);
 
 			memset(dest_fullname,0x0,2048);
 			
@@ -159,16 +157,15 @@ int delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 			
 			strncat(dest_fullname,de->d_name,2048);
 			
-				
-//			printf("%s:file\n",src_fullname);
-			
 			if ( file_exists(dest_fullname) && !file_exists(src_fullname) )	{	
 				
-				r2 = remove(dest_fullname);
+				remove(dest_fullname);
 
 			}
 			
 			memset(src_fullname,0x0,2048);
+			
+			memset(dest_fullname,0x0,2048);
 		}
 
 		else	{

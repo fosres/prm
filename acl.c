@@ -94,7 +94,7 @@ void delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 	
 	struct dirent *de = 0; //Pointer for entry
 
-	DIR * dr = opendir(srcpath);
+	DIR * dr = opendir(destpath);
 
 	unsigned char src_fullname[2048];
 
@@ -135,6 +135,11 @@ void delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 			strncat(dest_fullname,"/",2048);
 
 			strncat(dest_fullname,de->d_name,2048);
+			
+			if ( dir_exists(dest_fullname) && !dir_exists(src_fullname) )	{ 
+				
+				unmark(dest_fullname);	
+			}
 
 			delete(dest_fullname,src_fullname);
 
@@ -151,11 +156,13 @@ void delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 			
 			strncat(src_fullname,de->d_name,2048);
 			
-			strncat(dest_fullname,srcpath,2048);
+			strncat(dest_fullname,destpath,2048);
 
 			strncat(dest_fullname,"/",2048);
 			
 			strncat(dest_fullname,de->d_name,2048);
+
+			printf("src_fullname:%s\ndest_fullname:%s\n",src_fullname,dest_fullname);
 			
 			if ( file_exists(dest_fullname) && !file_exists(src_fullname) )	{	
 				

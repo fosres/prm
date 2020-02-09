@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
@@ -9,6 +10,99 @@
 #include <grp.h>
 #include <errno.h>
 
+bool file_exists(const unsigned char*file)	{
+	
+	struct stat buffer;
+
+	memset(&buffer,0x0,sizeof(stat));
+
+	return(stat(file,&buffer) == 0);
+
+}
+
+bool dir_exists(const unsigned char*directory)	{
+	
+	return opendir(directory);
+
+}
+
+int unmark(const unsigned char*srcpath)	{
+	
+	struct dirent *de = 0; //Pointer for entry
+
+	DIR * dr = opendir(srcpath);
+
+	unsigned char src_fullname[2048];
+
+	memset(src_fullname,0x0,2048);
+
+	int r2 = -1;
+
+	int r = -1;
+
+	if (dr == NULL) // opendir
+	{
+		printf("Could not open current directory");
+	}
+
+	while ((de = readdir(dr)) != NULL)		{
+		
+		if (	(strcmp(de->d_name,".")==0) || (strcmp(de->d_name,"..")==0)	)	{
+			
+			continue;
+		}
+
+		else if ((de->d_type==DT_DIR))	{
+
+			//You actually need to concatenate the full path name from argv, rename it srcpath
+			
+			strncat(src_fullname,srcpath,2048);
+
+			strncat(src_fullname,"/",2048);
+
+			strncat(src_fullname,de->d_name,2048);
+
+//			printf("%s:directory\n",src_fullname);
+
+			r2 = unmark(src_fullname);
+
+			memset(src_fullname,0x0,2048);
+		}
+
+		else if ((de->d_type==DT_REG))	{
+			
+			strncat(src_fullname,srcpath,2048);
+
+			strncat(src_fullname,"/",2048);
+			
+			strncat(src_fullname,de->d_name,2048);
+			
+//			printf("%s:file\n",src_fullname);
+				
+			r2 = remove(src_fullname);
+			
+			memset(src_fullname,0x0,2048);
+		
+		}
+
+		else	{
+
+			continue;
+		}	
+		
+		r = r2;
+	}
+
+	closedir(dr);
+	
+	if ( !r )	{
+		
+		r = rmdir(srcpath);
+
+	}
+
+
+}
 
 int delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 	
@@ -24,9 +118,9 @@ int delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 	
 	memset(dest_fullname,0x0,2048);
 
-	unsigned char extension[2048];
+	unsigned char leaf[2048];
 
-	memset(extension,0x0,2048);
+	memset(leaf,0x0,2048);
 
 	int r2 = -1;
 
@@ -62,8 +156,10 @@ int delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 
 //			printf("%s:directory\n",src_fullname);
 
-			r2 = delete(src_fullname);
+			r2 = delete(dest_fullname,src_fullname);
 
+			memset(dest_fullname,0x0,2048);
+			
 			memset(src_fullname,0x0,2048);
 		}
 
@@ -72,12 +168,23 @@ int delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 			strncat(src_fullname,srcpath,2048);
 
 			strncat(src_fullname,"/",2048);
-
+			
 			strncat(src_fullname,de->d_name,2048);
 			
+			strncat(dest_fullname,srcpath,2048);
+
+			strncat(dest_fullname,"/",2048);
+			
+			strncat(dest_fullname,de->d_name,2048);
+			
+				
 //			printf("%s:file\n",src_fullname);
 			
-			r2 = remove(src_fullname);
+			if ( file_exists(dest_fullname) && !file_exists(src_fullname) )	{	
+				
+				r2 = remove(dest_fullname);
+
+			}
 			
 			memset(src_fullname,0x0,2048);
 		}
@@ -216,12 +323,10 @@ void do_chown(const unsigned char * dest,const unsigned char * src)	{
 
 }
 
-#if 0
 int main(int argc,char**argv)	{
 	
-	lsa(argv[1]);
+	unmark(argv[1]);
 
 	return 0;
 }
-#endif
 

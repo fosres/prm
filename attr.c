@@ -5,6 +5,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <pwd.h>
+#include <grp.h>
 #include <errno.h>
 
 
@@ -68,6 +70,46 @@ void lsa(char*basepath)	{
 	}
 
 	closedir(dr);
+
+}
+
+void do_chown(const unsigned char * destpath,const unsigned char * srcpath,const unsigned char * group_name)	{
+	uid_t	uid = 0;
+	
+	gid_t	gid = 0;
+
+	struct passwd * pwd = 0;
+
+	struct group * grp = 0;
+
+	pwd=getpwnam(user_name);
+
+	if (pwd == NULL)	{
+		
+		fprintf(stderr,"%s:Failed to get uid of sourcefile\n",basepath);	
+		exit(1);
+
+	}	
+
+	uid = pwd->pw_uid;
+
+	grp = getgrnam(group_name);
+
+	if (grp==NULL)	{
+		
+		fprintf(stderr,"%s:Failed to get gid of destination file\n",basepath);
+		
+		exit(1);	
+	}
+
+	gid = grp->gr_gid;
+
+	if (chown(destpath,uid,gid) == -1)	{
+		
+		fprintf(stderr,"%s:Failed to change file and ownership permissions of destination file\n");
+		
+		exit(1);
+	}
 
 }
 

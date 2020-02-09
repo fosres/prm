@@ -1,8 +1,16 @@
+#if 0
+https://stackoverflow.com/questions/8778834/change-owner-and-group-in-c
+
+https://stackoverflow.com/questions/43627117/unix-copy-a-file-with-original-permission-in-c?noredirect=1&lq=1
+
+#endif
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sodium.h>
+#include "attr.h"
 
 #define CHUNK_SIZE	4096
 
@@ -281,9 +289,10 @@ int main(int argc,char**argv)	{
 		n++;
 	}
 
-	printf("Entered Passsword:%s\n",pwd);
+	printf("Entered Password:%s\n",pwd);
 
 	if(crypto_pwhash(out,crypto_pwhash_STRBYTES,pwd,strnlen(pwd,2048),salt,crypto_pwhash_OPSLIMIT_SENSITIVE,crypto_pwhash_MEMLIMIT_SENSITIVE,crypto_pwhash_ALG_DEFAULT) != 0)	{
+		
 		fprintf(stderr,"Error: Ran out of memory for pwhash\n");
 
 		exit(1);
@@ -306,6 +315,7 @@ int main(int argc,char**argv)	{
 		
 		return 1;
 	}
+	
 	sodium_munlock(salt,crypto_pwhash_SALTBYTES);
 	
 	sodium_munlock(out,crypto_pwhash_STRBYTES);

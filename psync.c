@@ -234,7 +234,7 @@ int main(int argc,char**argv)	{
 	
 	do_chmod("/home/tsalim/git/prm/test.c.prm","/home/tsalim/git/prm/test.c");
 
-//	do_chown("/home/tsalim/git/prm/test.c.prm","/home/tsalim/git/prm/test.c");
+	do_chown("/home/tsalim/git/prm/test.c.prm","/home/tsalim/git/prm/test.c");
 	
 	if (decrypt("test.c.prm.decrypt.c","test.c.prm",out) != 0)	{
 		
@@ -245,7 +245,7 @@ int main(int argc,char**argv)	{
 	
 	do_chmod("/home/tsalim/git/prm/test.c.prm.decrypt.c","/home/tsalim/git/prm/test.c.prm");
 	
-//	do_chown("/home/tsalim/git/prm/test.c.prm.decrypt.c","/home/tsalim/git/prm/test.c.prm");
+	do_chown("/home/tsalim/git/prm/test.c.prm.decrypt.c","/home/tsalim/git/prm/test.c.prm");
 
 
 	sodium_munlock(salt,crypto_pwhash_SALTBYTES);

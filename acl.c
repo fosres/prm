@@ -90,25 +90,25 @@ void do_chmod(const unsigned char*dest,const unsigned char*src)	{
 	chmod(dest,tmp.st_mode);
 }
 
-void do_chown(const unsigned char * destpath,const unsigned char * srcpath)	{
+void do_chown(const unsigned char * dest,const unsigned char * src)	{
 	
 	uid_t	uid = 0;
 	
 	gid_t	gid = 0;
 
-	struct stat * info = 0;
+	struct stat info;
 
-	memset(info,0x0,sizeof(stat));
+	memset(&info,0x0,sizeof(stat));
 
-	stat(srcpath,info);
+	stat(src,&info);
 
-	struct passwd * pwd = getpwuid((*info).st_uid);
+	struct passwd * pwd = getpwuid(info.st_uid);
 
-	struct group * grp = getgrgid((*info).st_gid);
+	struct group * grp = getgrgid(info.st_gid);
 
 	if (pwd == NULL)	{
 		
-		fprintf(stderr,"%s:Failed to get uid of sourcefile\n",srcpath);	
+		fprintf(stderr,"%s:Failed to get uid of sourcefile\n",src);	
 		
 		exit(1);
 
@@ -118,14 +118,14 @@ void do_chown(const unsigned char * destpath,const unsigned char * srcpath)	{
 
 	if (grp==NULL)	{
 		
-		fprintf(stderr,"%s:Failed to get gid of destination file\n",srcpath);
+		fprintf(stderr,"%s:Failed to get gid of destination file\n",src);
 		
 		exit(1);	
 	}
 
 	gid = grp->gr_gid;
 
-	if (chown(destpath,uid,gid) == -1)	{
+	if (chown(dest,uid,gid) == -1)	{
 		
 		fprintf(stderr,"%s:Failed to change file and ownership permissions of destination file\n");
 		

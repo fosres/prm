@@ -4,6 +4,8 @@ https://stackoverflow.com/questions/8778834/change-owner-and-group-in-c
 https://stackoverflow.com/questions/43627117/unix-copy-a-file-with-original-permission-in-c?noredirect=1&lq=1
 
 https://stackoverflow.com/questions/7624127/finding-the-owner-and-group-of-a-file-as-a-string
+
+https://stackoverflow.com/questions/7328327/how-to-get-files-owner-name-in-linux-using-c
 #endif
 
 #include <stdio.h>

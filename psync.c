@@ -224,15 +224,18 @@ int main(int argc,char**argv)	{
 
 	printf("%llu\n",strnlen(out,crypto_secretstream_xchacha20poly1305_KEYBYTES));
 	
+	
 	if (encrypt("/home/tsalim/git/prm/test.c.prm","/home/tsalim/git/prm/test.c",out) != 0)	{
 		
 		fprintf(stderr,"Error: Encryption failed\n");	
 
 		return 1;
 	}
-
+	
 	do_chmod("/home/tsalim/git/prm/test.c.prm","/home/tsalim/git/prm/test.c");
 
+//	do_chown("/home/tsalim/git/prm/test.c.prm","/home/tsalim/git/prm/test.c");
+	
 	if (decrypt("test.c.prm.decrypt.c","test.c.prm",out) != 0)	{
 		
 		fprintf(stderr,"Error: Decryption failed\n");	
@@ -242,11 +245,12 @@ int main(int argc,char**argv)	{
 	
 	do_chmod("/home/tsalim/git/prm/test.c.prm.decrypt.c","/home/tsalim/git/prm/test.c.prm");
 	
+//	do_chown("/home/tsalim/git/prm/test.c.prm.decrypt.c","/home/tsalim/git/prm/test.c.prm");
+
+
 	sodium_munlock(salt,crypto_pwhash_SALTBYTES);
 	
 	sodium_munlock(out,crypto_pwhash_STRBYTES);
-
-//	lsa(argv[1]);
 
 	return 0;
 }

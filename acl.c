@@ -73,6 +73,12 @@ void lsa(char*basepath)	{
 
 }
 
+#if 0
+
+To guratee do_chmod and do_chown do their job, simply run program as root user-owner
+
+#endif
+
 void do_chmod(const unsigned char*dest,const unsigned char*src)	{
 	
 	struct stat tmp;

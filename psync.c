@@ -13,11 +13,32 @@ https://stackoverflow.com/questions/2256945/removing-a-non-empty-directory-progr
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <dirent.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <pwd.h>
+#include <grp.h>
+#include <errno.h>
 #include <unistd.h>
 #include <sodium.h>
 #include "acl.h"
 
 #define CHUNK_SIZE	4096
+
+void create_dir_clone(const unsigned char*dest,const unsigned char*src)	{
+	
+	struct stat st = {0};
+
+	if ( stat(dest,&st) == -1 )	{
+		
+		mkdir(dest,0700);
+
+	}
+		do_chmod(dest,src);
+		
+		do_chown(dest,src);
+
+}
 
 static int encrypt(const char*dest,const char*src,const unsigned char key[crypto_secretstream_xchacha20poly1305_KEYBYTES])	{
 	
@@ -177,12 +198,213 @@ ret:
 //copies file contents, chmod permissions, and chown permissions to destination
 int archive(unsigned char*destfile,unsigned char*srcfile);
 
+//quickly encrypts file with password defined in out
+
+int encp(const unsigned char*dest,const unsigned char*src,const unsigned char*out)	{
+	
+	if (encrypt(dest,src,out) != 0)	{
+		
+		fprintf(stderr,"Error: Encryption failed\n");	
+
+		return 1;
+	}
+
+	return 0;
+}
+
+//quickly decrypts file using key as defined in out
+
+int dencp(const unsigned char*dest,const unsigned char*src,const unsigned char*out)	{
+	
+	if (decrypt(dest,src,out) != 0)	{
+		
+		fprintf(stderr,"Error: Decryption failed\n");	
+		
+		return 1;
+	}
+
+	return 0;
+}
+
+// The main function that copies files and automatically encrypts them at destination. Just files without concerns over date,time, chmod permissions, etc.
+
+void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsigned char*out)	{
+	
+	create_dir_clone(destpath,srcpath);
+
+	struct dirent *de = 0; //Pointer for entry
+
+	DIR * dr = opendir(srcpath);
+
+	unsigned char src_fullname[2048];
+
+	memset(src_fullname,0x0,2048);
+
+	unsigned char dest_fullname[2048];
+	
+	memset(dest_fullname,0x0,2048);
+
+	if (dr == NULL) // opendir
+	{
+		printf("Could not open current directory");
+	}
+
+	while ((de = readdir(dr)) != NULL)		{
+		
+		if (	(strcmp(de->d_name,".")==0) || (strcmp(de->d_name,"..")==0)	)	{
+			
+			continue;
+		}
+
+		else if ((de->d_type==DT_DIR))	{
+
+			//You actually need to concatenate the full path name from argv, rename it srcpath
+			
+			strncat(src_fullname,srcpath,2048);
+
+			strncat(src_fullname,"/",2048);
+
+			strncat(src_fullname,de->d_name,2048);
+			
+			strncat(dest_fullname,destpath,2048);
+
+			strncat(dest_fullname,"/",2048);
+
+			strncat(dest_fullname,de->d_name,2048);
+			
+			create_dir_clone(dest_fullname,src_fullname);
+
+			ensync(dest_fullname,src_fullname,out);	
+				
+			memset(dest_fullname,0x0,2048);
+			
+			memset(src_fullname,0x0,2048);
+		}
+
+		else if ((de->d_type==DT_REG))	{
+			
+			strncat(src_fullname,srcpath,2048);
+
+			strncat(src_fullname,"/",2048);
+			
+			strncat(src_fullname,de->d_name,2048);
+			
+			strncat(dest_fullname,destpath,2048);
+
+			strncat(dest_fullname,"/",2048);
+			
+			strncat(dest_fullname,de->d_name,2048);
+			
+			encp(dest_fullname,src_fullname,out);
+
+			memset(src_fullname,0x0,2048);
+			
+			memset(dest_fullname,0x0,2048);
+		}
+
+		else	{
+
+			continue;
+		}	
+
+	}
+
+	closedir(dr);
+
+}
+
+// The main function that copies files and automatically decrypts them at destination. Just files without concerns over date,time, chmod permissions, etc.
+
+void dsync(const unsigned char*destpath,const unsigned char*srcpath,const unsigned char*out)	{
+	
+	struct dirent *de = 0; //Pointer for entry
+
+	DIR * dr = opendir(srcpath);
+
+	unsigned char src_fullname[2048];
+
+	memset(src_fullname,0x0,2048);
+
+	unsigned char dest_fullname[2048];
+	
+	memset(dest_fullname,0x0,2048);
+
+	if (dr == NULL) // opendir
+	{
+		printf("Could not open current directory");
+	}
+
+	while ((de = readdir(dr)) != NULL)		{
+		
+		if (	(strcmp(de->d_name,".")==0) || (strcmp(de->d_name,"..")==0)	)	{
+			
+			continue;
+		}
+
+		else if ((de->d_type==DT_DIR))	{
+
+			//You actually need to concatenate the full path name from argv, rename it srcpath
+			
+			strncat(src_fullname,srcpath,2048);
+
+			strncat(src_fullname,"/",2048);
+
+			strncat(src_fullname,de->d_name,2048);
+			
+			strncat(dest_fullname,destpath,2048);
+
+			strncat(dest_fullname,"/",2048);
+
+			strncat(dest_fullname,de->d_name,2048);
+			
+			create_dir_clone(dest_fullname,src_fullname);
+
+			dsync(dest_fullname,src_fullname,out);	
+				
+			memset(dest_fullname,0x0,2048);
+			
+			memset(src_fullname,0x0,2048);
+		}
+
+		else if ((de->d_type==DT_REG))	{
+			
+			strncat(src_fullname,srcpath,2048);
+
+			strncat(src_fullname,"/",2048);
+			
+			strncat(src_fullname,de->d_name,2048);
+			
+			strncat(dest_fullname,destpath,2048);
+
+			strncat(dest_fullname,"/",2048);
+			
+			strncat(dest_fullname,de->d_name,2048);
+			
+			dencp(dest_fullname,src_fullname,out);
+
+			memset(src_fullname,0x0,2048);
+			
+			memset(dest_fullname,0x0,2048);
+		}
+
+		else	{
+
+			continue;
+		}	
+
+	}
+
+	closedir(dr);
+
+}
+
 int main(int argc,char**argv)	{
 	
 	if (sodium_init() != 0)	{
+		
 		return 1;
 	}	
-
+	
 	unsigned char out[crypto_secretstream_xchacha20poly1305_KEYBYTES];
 
 	unsigned char salt[crypto_pwhash_SALTBYTES];
@@ -191,7 +413,7 @@ int main(int argc,char**argv)	{
 
 	sodium_mlock(salt,crypto_pwhash_SALTBYTES);
 
-	randombytes_buf(salt,crypto_pwhash_SALTBYTES);
+	//randombytes_buf(salt,crypto_pwhash_SALTBYTES);
 
 	memset(out,0x0,crypto_pwhash_STRBYTES);
 
@@ -217,6 +439,8 @@ int main(int argc,char**argv)	{
 	}
 
 	printf("Entered Password:%s\n",pwd);
+	
+	printf("Salt:%s\n",salt);
 
 	if(crypto_pwhash(out,crypto_pwhash_STRBYTES,pwd,strnlen(pwd,2048),salt,crypto_pwhash_OPSLIMIT_SENSITIVE,crypto_pwhash_MEMLIMIT_SENSITIVE,crypto_pwhash_ALG_DEFAULT) != 0)	{
 		
@@ -225,34 +449,12 @@ int main(int argc,char**argv)	{
 		exit(1);
 	}
 
-	printf("%s\n",out);
+	printf("out:%s\n",out);
 
-	printf("%llu\n",strnlen(out,crypto_secretstream_xchacha20poly1305_KEYBYTES));
-	
-	
-	if (encrypt("/home/tsalim/git/prm/test.c.prm","/home/tsalim/git/prm/test.c",out) != 0)	{
-		
-		fprintf(stderr,"Error: Encryption failed\n");	
+	printf("outlen:%llu\n",strnlen(out,crypto_secretstream_xchacha20poly1305_KEYBYTES));
 
-		return 1;
-	}
+	ensync(argv[2],argv[1],out);
 	
-	do_chmod("/home/tsalim/git/prm/test.c.prm","/home/tsalim/git/prm/test.c");
-
-	do_chown("/home/tsalim/git/prm/test.c.prm","/home/tsalim/git/prm/test.c");
-	
-	if (decrypt("test.c.prm.decrypt.c","test.c.prm",out) != 0)	{
-		
-		fprintf(stderr,"Error: Decryption failed\n");	
-		
-		return 1;
-	}
-	
-	do_chmod("/home/tsalim/git/prm/test.c.prm.decrypt.c","/home/tsalim/git/prm/test.c.prm");
-	
-	do_chown("/home/tsalim/git/prm/test.c.prm.decrypt.c","/home/tsalim/git/prm/test.c.prm");
-
-
 	sodium_munlock(salt,crypto_pwhash_SALTBYTES);
 	
 	sodium_munlock(out,crypto_pwhash_STRBYTES);

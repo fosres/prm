@@ -9,7 +9,7 @@
 #include <pwd.h>
 #include <grp.h>
 #include <errno.h>
-
+#include "acl.h"
 bool file_exists(const unsigned char*file)	{
 	
 	struct stat buffer;
@@ -312,11 +312,11 @@ void do_chown(const unsigned char * dest,const unsigned char * src)	{
 	}
 
 }
-
+#if 0
 int main(int argc,char**argv)	{
 	
 	delete("/home/tsalim/git/prm/swiss_bkup","/home/tsalim/git/prm/swiss");
 
 	return 0;
 }
-
+#endif

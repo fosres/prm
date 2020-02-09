@@ -297,6 +297,10 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 			
 			encp(dest_fullname,src_fullname,out);
 
+			do_chmod(dest_fullname,src_fullname);
+
+			do_chown(dest_fullname,src_fullname);
+
 			memset(src_fullname,0x0,2048);
 			
 			memset(dest_fullname,0x0,2048);
@@ -455,6 +459,8 @@ int main(int argc,char**argv)	{
 
 	ensync(argv[2],argv[1],out);
 	
+//	dsync(argv[2],argv[1],out);
+
 	sodium_munlock(salt,crypto_pwhash_SALTBYTES);
 	
 	sodium_munlock(out,crypto_pwhash_STRBYTES);

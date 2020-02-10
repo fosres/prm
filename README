@@ -10,6 +10,10 @@ If you are using ArchLinux, then just run the following in terminal:
 
 sudo pacman -S libsodium
 
+Execution
+
+./psync.o src dest
+
 Inspiration
 
 I was disappointed with AES-256, since it does not defend against timing side-channel attacks. I was inspired by xchacha20-poly1305 cipher and the rsync command.

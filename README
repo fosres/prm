@@ -16,39 +16,15 @@ Execution
 
 ./psync.o src dest
 
+The following is straight from my DevPost Submission for Hacklahoma 2020, with updated information ;):
+
 Inspiration
 
-I was disappointed with AES-256, since it does not defend against timing side-channel attacks. I was inspired by xchacha20-poly1305 cipher and the rsync command.
+I was disappointed with AES-256, since it does not defend against timing side-channel attacks. I was inspired by xchacha20-poly1305 cipher and the rsync command. That, and xchacha20-poly1305 is actually faster than AES.
 
-Secure deletion of backup files is not an option. It is completely impossible to gurantee that a file stored in an SSD or HDD has definitely been wiped. So I decided to store encrypted backups in drives from the very beginning to ensure that sensitive data cannot be compromised, even if previous versions of the file's or directory's history are stored in the hard drive's journaling filesystem. The Ex* filesystems are especially famous for automatically keeping version histories of files.
+Secure deletion of backup files is not an option. It is completely impossible to gurantee that a file stored in an SSD or HDD has definitely been wiped. So I decided to store encrypted backups in drives from the very beginning to ensure that sensitive data cannot be compromised, even if previous versions of the file's or directory's history are stored in the hard drive's journaling filesystem. The Ext* filesystems are especially famous for automatically keeping version histories of files.
 
 I decided to create this so I can make encrypted backups of my entire root directory.
-
-What it does
-It makes an encrypted copy of a directory, effectively serving as an encrypted backup tool.
-
-How I built it
-
-Using the libsodium library written in the C programming language
-
-Challenges I ran into
-
-Dealing with file permissions and ownership permissions of files and directories.
-
-Accomplishments that I'm proud of
-I learned how to recursively delete only the files in the destination directory that do not exist in the source directory. This helps update the backup directory. This is what the famous "rsync --delete" command does. My project is designed to do what rsync does AND automatically encrypt/decrypt your backups using the very strong xchacha20-poly1305 cipher on your behalf.
-
-What I learned
-
-I learned many of the library functions used for encryption, decryption, and password hashing from the libsodium library. I also learned how the rsync command smartly copies files and directories. Perhaps the most significant discovery is that libsodium actually offers an even more public-private key cryptography system than RSA-RSA: crypto_box(). I will add support for this in the prm project.
-
-What's next for prm
-
-Ensure prm can read and tell the latest modification date/time of a file. This will allow prm to skip files that are already up to date.
-
-I actually intend to submit this project as both ArchLinux and Gentoo packages. This project was made on an ArchLinux laptop, although I am in the process of migrating to the Gentoo Linux operating system.
-
-I intend people to use this simple program to make encrypted backups of their entire root directory.
 
 There are several benefits to doing this, including that you can transfer between:
 
@@ -63,6 +39,34 @@ You also have more control over the following between the backup and restoration
 1. File Permissions (think chmod permissions)
 
 2. Attributes ( all information in the Access Control List ). Even for extended attributes.
+
+What It Does
+It makes an encrypted copy of a directory, effectively serving as an encrypted backup tool.
+
+How I Built It
+
+Using the libsodium library written in the C programming language
+
+Challenges I Ran Into
+
+Dealing with file permissions and ownership permissions of files and directories.
+
+Accomplishments That I'm Proud Of
+I learned how to recursively delete only the files in the destination directory that do not exist in the source directory. This helps update the backup directory. This is what the famous "rsync --delete" command does. My project is designed to do what rsync does AND automatically encrypt/decrypt your backups using the very strong xchacha20-poly1305 cipher on your behalf.
+
+What I learned
+
+I learned many of the library functions used for encryption, decryption, and password hashing from the libsodium library. I also learned how the rsync command smartly copies files and directories. Perhaps the most significant discovery is that libsodium actually offers an even more public-private key cryptography system than RSA-RSA: crypto_box(). I will add support for this in the prm project.
+
+What's next for prm
+
+Add an option for using a public-private key crytography authentication for encrypting backups in addition to using a password. 
+
+Ensure prm can read and tell the latest modification date/time of a file. This will allow prm to skip files that are already up to date.
+
+I actually intend to submit this project as both ArchLinux and Gentoo packages. This project was made on an ArchLinux laptop, although I am in the process of migrating to the Gentoo Linux operating system.
+
+I intend people to use this simple program to make encrypted backups of their entire root directory.
 
 Moreover, libsodium even has functions for storing password hashes (with salt). Currently, linux system merely use SHA512 to store passwords. Which is not great since checksum algorithms like SHA512 are vulnerable to dictionary and GPU cracking attacks like rainbow-table attacks. A better algorithm would be argon2id, which libsodium has a built in function for: crypto_pwhash_str() and crypto_pwhash_str_verify(), which have complete support for argon2id. I intend to make use of these functions to store my login passwords in my linux computer. To do this, the hashes that crypto_pwhash_str() outputs must be printed to a special file in linux called "/etc/shadow". If you have a mac that file instead is called: "/etc/passwd". Having my passwords stored as an argon2id hash is a much, much safer alternative than using SHA-512.
 

@@ -1,3 +1,15 @@
+How To Use
+
+In order to compile psync, simply execute the following in the command terminal:
+
+gcc psync.c acl.c acl.h -o psync.o -lsodium
+
+NOTE: You must have the libsodium library installed in your computer's source files and library dependencies directories.
+
+If you are using ArchLinux, then just run the following in terminal:
+
+sudo pacman -S libsodium
+
 Inspiration
 
 I was disappointed with AES-256, since it does not defend against timing side-channel attacks. I was inspired by xchacha20-poly1305 cipher and the rsync command.
@@ -54,14 +66,5 @@ Finally, libsodium even has an asymmetric encryption system, similiar to the RSA
 
 Built With:
 
-c
+C
 
-In order to compile psync, simply execute the following in the command terminal:
-
-gcc psync.c acl.c acl.h -o psync.o -lsodium
-
-NOTE: You must have the libsodium library installed in your computer's source files and library dependencies directories.
-
-If you are using ArchLinux, then just run the following in terminal:
-
-sudo pacman -S libsodium

@@ -1,0 +1,5 @@
+1. Ensure psync is smart enough to tell the difference between a file or directory and encrypt/decrypt accordingly. Just the edit the ensync file to directly check if the src pointer points to a file or directory.
+
+2. Ensure that the password does not echo into stdout into the terminal as it is being typed. Remember, ask the user to retype the password to check that they have typed correctly. Use the termios library.
+
+3. 

@@ -231,6 +231,21 @@ int dencp(const unsigned char*dest,const unsigned char*src,const unsigned char*o
 
 void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsigned char*out)	{
 	
+	struct stat sb;
+
+	memset(&sb,0x0,sizeof(stat));
+
+	if ( (stat(srcpath,&sb) == 0 ) && S_ISREG(sb.st_mode) ) {
+		
+		encrypt(destpath,srcpath,out);
+
+		do_chmod(destpath,srcpath);
+
+		do_chown(destpath,srcpath);
+		
+		return;		
+	}
+
 	create_dir_clone(destpath,srcpath);
 
 	struct dirent *de = 0; //Pointer for entry
@@ -322,6 +337,21 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 
 void dsync(const unsigned char*destpath,const unsigned char*srcpath,const unsigned char*out)	{
 	
+	struct stat sb;
+
+	memset(&sb,0x0,sizeof(stat));
+
+	if ( (stat(srcpath,&sb) == 0 ) && S_ISREG(sb.st_mode) ) {
+		
+		decrypt(destpath,srcpath,out);
+
+		do_chmod(destpath,srcpath);
+
+		do_chown(destpath,srcpath);
+		
+		return;		
+	}
+
 	create_dir_clone(destpath,srcpath);
 
 	struct dirent *de = 0; //Pointer for entry

@@ -34,6 +34,8 @@ There are several benefits to doing this, including that you can transfer betwee
 
 3. Different filesystems used between the backup and restoration drives
 
+4. You do not need to perform full-disk encryption on your backup hard drive. Backing up and restoring on a portable drive protected by full-disk encryption is difficult. If you actually perform full system backups by simply backing up the root directory, then you will use up far less disk space than what you would use if you were cloning the entire filesystem of your device.
+
 You also have more control over the following between the backup and restoration directories:
 
 1. File Permissions (think chmod permissions)

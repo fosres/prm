@@ -2,4 +2,33 @@
 
 2. Ensure that the password does not echo into stdout into the terminal as it is being typed. Remember, ask the user to retype the password to check that they have typed correctly. Use the termios library.
 
-3. 
+3. Ensure that psync is smart enough to only bother copying when there is either a date, time, or file size difference between the source and destination. This will save plenty of time during backing up and this is the basic strategy that rsync uses.
+
+4. Extended attributes bug:
+
+I attempted to backup my backup of my Gentoo Server's root directory that runs from a bootable USB stick. This is a simple 16GB bootable USB disk that I actually use as an SSH and private Git server where I store all my personal information. On my Thinkpad, the backup is found in the following directory:
+
+/home/tsalim/Gentoo_Server_Backup/gentoo_server_backup-02-05-2019/
+
+But during the backup process, the following error was printed:
+
+/home/tsalim/Gentoo_Server_Backup/gentoo_server_backup-02-05-2019/usr/bin/crontab:Failed to get gid of destination file
+
+There is a simple reason why this is happening:
+
+ 
+-rwxr-s--x 1 root 249 52504 Jan 25 04:45 /home/tsalim/Gentoo_Server_Backup/gentoo_server_backup-02-05-2019/usr/bin/crontab
+
+Did you see that 's' in the file permissions. This file has a setgid bit execute permissions. It also implies execute permissions for users that are part of the group 'root' other than the root owner. All I must do is edit the do_chown function to add support for the following execute permissions:
+
+Execute permission (third character)	-	The file cannot be executed.	The directory cannot be accessed with cd.
+
+'x'	The file can be executed.	The directory can be accessed with cd; this is the only permission bit that in practice can be considered to be "inherited" from the ancestor directories, in fact if any folder in the path does not have the x bit set, the final file or folder cannot be accessed either, regardless of its permissions; see path_resolution(7) for more information.
+
+'s'	The setuid bit when found in the user triad; the setgid bit when found in the group triad; it is not found in the others triad; it also implies that x is set.
+
+'S'	Same as s, but x is not set; rare on regular files, and useless on folders.
+
+'t'	The sticky bit; it can only be found in the others triad; it also implies that x is set.
+
+'T'	Same as t, but x is not set; rare on regular files, and useless on folders.

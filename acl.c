@@ -25,7 +25,8 @@ DIR * dir_exists(const unsigned char*directory)	{
 	return opendir(directory);
 
 }
-//unmark is as powerful as the BASH "rm -r". Use with caution! SERIOUSLY!!!!
+
+//unmark is potentially as powerful as the BASH "rm -rf" when run as root-owner user. Use with caution! SERIOUSLY!!!!
 
 void unmark(const unsigned char*srcpath)	{
 	
@@ -86,9 +87,10 @@ void unmark(const unsigned char*srcpath)	{
 		rmdir(srcpath);
 
 }
-//delete will only delete the files in the destpath directory that are NOT
 
-//present in the srcpath directory
+//delete will only delete the files and directories in the destpath directory that are NOT
+
+//present in the srcpath directory. This function is inspired by the --delete flag in rsync
 
 void delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 	

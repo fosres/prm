@@ -1,3 +1,5 @@
+NOTE: It is strongly recommended to run psync.o as the root-owner user of your computer to avoid conflicts with file permissions.
+
 1. Ensure psync is smart enough to tell the difference between a file or directory and encrypt/decrypt accordingly. Just the edit the ensync file to directly check if the src pointer points to a file or directory.
 
 2. Ensure that the password does not echo into stdout into the terminal as it is being typed. Remember, ask the user to retype the password to check that they have typed correctly. Use the termios library.
@@ -32,3 +34,4 @@ Execute permission (third character)	-	The file cannot be executed.	The director
 't'	The sticky bit; it can only be found in the others triad; it also implies that x is set.
 
 'T'	Same as t, but x is not set; rare on regular files, and useless on folders.
+

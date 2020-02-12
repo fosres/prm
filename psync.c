@@ -70,7 +70,7 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 	
 	if ( (in = fopen(src,"rb")) == NULL )	{
 		
-		fprintf(stderr,"Error: Failed to read source file during encryption\n");
+		fprintf(stderr,"%s:Error: Failed to read source file during encryption\n",src);
 		
 		exit(1);
 
@@ -78,7 +78,7 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 
 	if ( ( out = fopen(dest,"wb")) == NULL )	{
 		
-		fprintf(stderr,"Error: Failed to create target file during encryption\n");
+		fprintf(stderr,"%s:Error: Failed to create target file during encryption\n",dest);
 		
 		exit(1);
 
@@ -494,9 +494,11 @@ int main(int argc,char**argv)	{
 
 	printf("outlen:%llu\n",strnlen(out,crypto_secretstream_xchacha20poly1305_KEYBYTES));
 
+	delete(argv[2],argv[1],out);
+
 //	ensync(argv[2],argv[1],out);
 	
-	dsync(argv[2],argv[1],out);
+//	dsync(argv[2],argv[1],out);
 
 	sodium_munlock(salt,crypto_pwhash_SALTBYTES);
 	

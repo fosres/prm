@@ -4,6 +4,6 @@ run            tmpfs     4.1G  1.5M  4.1G   1% /run
 /dev/nvme0n1p3 ext4      251G   37G  202G  16% /
 tmpfs          tmpfs     4.1G  158M  3.9G   4% /dev/shm
 tmpfs          tmpfs     4.1G     0  4.1G   0% /sys/fs/cgroup
+swiss
 tmpfs          tmpfs     4.1G   33k  4.1G   1% /tmp
 /dev/nvme0n1p2 vfat      536M   57M  480M  11% /boot
-tmpfs          tmpfs     810M   17k  810M   1% /run/user/1000

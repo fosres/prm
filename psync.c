@@ -1,4 +1,6 @@
 #if 0
+https://security.stackexchange.com/questions/31390/whats-a-good-secure-file-deleter?rq=1
+
 https://stackoverflow.com/questions/8778834/change-owner-and-group-in-c
 
 https://stackoverflow.com/questions/43627117/unix-copy-a-file-with-original-permission-in-c?noredirect=1&lq=1

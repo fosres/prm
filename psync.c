@@ -1,4 +1,6 @@
 #if 0
+https://security.stackexchange.com/questions/176974/why-is-accessing-kernel-memory-a-security-risk
+
 https://security.stackexchange.com/questions/31390/whats-a-good-secure-file-deleter?rq=1
 
 https://stackoverflow.com/questions/8778834/change-owner-and-group-in-c
@@ -484,6 +486,7 @@ int main(int argc,char**argv)	{
 	printf("Entered Password:%s\n",pwd);
 	
 	printf("Salt:%s\n",salt);
+
 
 	if(crypto_pwhash(out,crypto_pwhash_STRBYTES,pwd,strnlen(pwd,2048),salt,crypto_pwhash_OPSLIMIT_SENSITIVE,crypto_pwhash_MEMLIMIT_SENSITIVE,crypto_pwhash_ALG_DEFAULT) != 0)	{
 		

@@ -1,11 +1,13 @@
 #if 0
+https://stackoverflow.com/questions/10323060/printing-file-permissions-like-ls-l-using-stat2-in-c
+
 https://stackoverflow.com/questions/6856635/hide-password-input-on-terminal
 
 https://security.stackexchange.com/questions/176974/why-is-accessing-kernel-memory-a-security-risk
 
 https://security.stackexchange.com/questions/31390/whats-a-good-secure-file-deleter?rq=1
 
-https://stackoverflow.com/questions/8778834/change-owner-and-group-in-c
+***https://stackoverflow.com/questions/8778834/change-owner-and-group-in-c
 
 https://stackoverflow.com/questions/43627117/unix-copy-a-file-with-original-permission-in-c?noredirect=1&lq=1
 
@@ -118,9 +120,10 @@ void create_dir_clone(const unsigned char*dest,const unsigned char*src)	{
 		mkdir(dest,0700);
 
 	}
+		do_chown(dest,src);
+		
 		do_chmod(dest,src);
 		
-		do_chown(dest,src);
 
 }
 
@@ -322,10 +325,10 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 	if ( (stat(srcpath,&sb) == 0 ) && S_ISREG(sb.st_mode) ) {
 		
 		encrypt(destpath,srcpath,out);
+		
+		do_chown(destpath,srcpath);
 
 		do_chmod(destpath,srcpath);
-
-		do_chown(destpath,srcpath);
 		
 		return;		
 	}
@@ -401,9 +404,10 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 				
 			}
 
+			do_chown(dest_fullname,src_fullname);
+			
 			do_chmod(dest_fullname,src_fullname);
 
-			do_chown(dest_fullname,src_fullname);
 
 			memset(src_fullname,0x0,MAXSIZE);
 			
@@ -433,9 +437,10 @@ void dsync(const unsigned char*destpath,const unsigned char*srcpath,const unsign
 		
 		decrypt(destpath,srcpath,out);
 
+		do_chown(destpath,srcpath);
+
 		do_chmod(destpath,srcpath);
 
-		do_chown(destpath,srcpath);
 		
 		return;		
 	}
@@ -511,9 +516,10 @@ void dsync(const unsigned char*destpath,const unsigned char*srcpath,const unsign
 
 			}
 
+			do_chown(dest_fullname,src_fullname);
+			
 			do_chmod(dest_fullname,src_fullname);
 
-			do_chown(dest_fullname,src_fullname);
 
 			memset(src_fullname,0x0,MAXSIZE);
 			
@@ -586,9 +592,9 @@ int main(int argc,char**argv)	{
 
 //	delete(argv[2],argv[1],out);
 
-//	ensync(argv[2],argv[1],out);
+	ensync(argv[2],argv[1],out);
 	
-	dsync(argv[2],argv[1],out);
+//	dsync(argv[2],argv[1],out);
 
 	sodium_munlock(salt,crypto_pwhash_SALTBYTES);
 	

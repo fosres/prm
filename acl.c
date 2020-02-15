@@ -1,3 +1,9 @@
+#if 0
+https://stackoverflow.com/questions/42890587/retrieving-owner-name-of-file-using-getpwuid-in-c-always-throw-root
+
+https://stackoverflow.com/questions/7624127/finding-the-owner-and-group-of-a-file-as-a-string
+#endif
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -10,6 +16,7 @@
 #include <grp.h>
 #include <errno.h>
 #include "acl.h"
+
 bool file_exists(const unsigned char*file)	{
 	
 	struct stat buffer;
@@ -34,9 +41,9 @@ void unmark(const unsigned char*srcpath)	{
 
 	DIR * dr = opendir(srcpath);
 
-	unsigned char src_fullname[2048];
+	unsigned char src_fullname[MAXSIZE];
 
-	memset(src_fullname,0x0,2048);
+	memset(src_fullname,0x0,MAXSIZE);
 
 	if (dr == NULL) // opendir
 	{
@@ -56,28 +63,28 @@ void unmark(const unsigned char*srcpath)	{
 
 			//You actually need to concatenate the full path name from argv, rename it srcpath
 			
-			strncat(src_fullname,srcpath,2048);
+			strncat(src_fullname,srcpath,MAXSIZE);
 
-			strncat(src_fullname,"/",2048);
+			strncat(src_fullname,"/",MAXSIZE);
 
-			strncat(src_fullname,de->d_name,2048);
+			strncat(src_fullname,de->d_name,MAXSIZE);
 
 			unmark(src_fullname);
 
-			memset(src_fullname,0x0,2048);
+			memset(src_fullname,0x0,MAXSIZE);
 		}
 
 		else if ((de->d_type==DT_REG))	{
 			
-			strncat(src_fullname,srcpath,2048);
+			strncat(src_fullname,srcpath,MAXSIZE);
 
-			strncat(src_fullname,"/",2048);
+			strncat(src_fullname,"/",MAXSIZE);
 			
-			strncat(src_fullname,de->d_name,2048);
+			strncat(src_fullname,de->d_name,MAXSIZE);
 				
 			remove(src_fullname);
 			
-			memset(src_fullname,0x0,2048);
+			memset(src_fullname,0x0,MAXSIZE);
 		
 		}
 	}
@@ -98,17 +105,17 @@ void delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 
 	DIR * dr = opendir(destpath);
 
-	unsigned char src_fullname[2048];
+	unsigned char src_fullname[MAXSIZE];
 
-	memset(src_fullname,0x0,2048);
+	memset(src_fullname,0x0,MAXSIZE);
 
-	unsigned char dest_fullname[2048];
+	unsigned char dest_fullname[MAXSIZE];
 	
-	memset(dest_fullname,0x0,2048);
+	memset(dest_fullname,0x0,MAXSIZE);
 
-	unsigned char leaf[2048];
+	unsigned char leaf[MAXSIZE];
 
-	memset(leaf,0x0,2048);
+	memset(leaf,0x0,MAXSIZE);
 
 	if (dr == NULL) // opendir
 	{
@@ -126,17 +133,17 @@ void delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 
 			//You actually need to concatenate the full path name from argv, rename it srcpath
 			
-			strncat(src_fullname,srcpath,2048);
+			strncat(src_fullname,srcpath,MAXSIZE);
 
-			strncat(src_fullname,"/",2048);
+			strncat(src_fullname,"/",MAXSIZE);
 
-			strncat(src_fullname,de->d_name,2048);
+			strncat(src_fullname,de->d_name,MAXSIZE);
 			
-			strncat(dest_fullname,destpath,2048);
+			strncat(dest_fullname,destpath,MAXSIZE);
 
-			strncat(dest_fullname,"/",2048);
+			strncat(dest_fullname,"/",MAXSIZE);
 
-			strncat(dest_fullname,de->d_name,2048);
+			strncat(dest_fullname,de->d_name,MAXSIZE);
 			
 			if ( dir_exists(dest_fullname) && !dir_exists(src_fullname) )	{ 
 				
@@ -149,24 +156,24 @@ void delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 
 			}
 
-			memset(dest_fullname,0x0,2048);
+			memset(dest_fullname,0x0,MAXSIZE);
 			
-			memset(src_fullname,0x0,2048);
+			memset(src_fullname,0x0,MAXSIZE);
 		}
 
 		else if ((de->d_type==DT_REG))	{
 			
-			strncat(src_fullname,srcpath,2048);
+			strncat(src_fullname,srcpath,MAXSIZE);
 
-			strncat(src_fullname,"/",2048);
+			strncat(src_fullname,"/",MAXSIZE);
 			
-			strncat(src_fullname,de->d_name,2048);
+			strncat(src_fullname,de->d_name,MAXSIZE);
 			
-			strncat(dest_fullname,destpath,2048);
+			strncat(dest_fullname,destpath,MAXSIZE);
 
-			strncat(dest_fullname,"/",2048);
+			strncat(dest_fullname,"/",MAXSIZE);
 			
-			strncat(dest_fullname,de->d_name,2048);
+			strncat(dest_fullname,de->d_name,MAXSIZE);
 
 			printf("src_fullname:%s\ndest_fullname:%s\n",src_fullname,dest_fullname);
 			
@@ -176,9 +183,9 @@ void delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 
 			}
 			
-			memset(src_fullname,0x0,2048);
+			memset(src_fullname,0x0,MAXSIZE);
 			
-			memset(dest_fullname,0x0,2048);
+			memset(dest_fullname,0x0,MAXSIZE);
 		}
 
 		else	{
@@ -198,9 +205,9 @@ void lsa(char*basepath)	{
 
 	DIR * dr = opendir(basepath);
 
-	unsigned char fullname[2048];
+	unsigned char fullname[MAXSIZE];
 
-	memset(fullname,0x0,2048);
+	memset(fullname,0x0,MAXSIZE);
 
 	if (dr == NULL) // opendir
 	{
@@ -217,30 +224,30 @@ void lsa(char*basepath)	{
 
 			//You actually need to concatenate the full path name from argv, rename it basepath
 			
-			strncat(fullname,basepath,2048);
+			strncat(fullname,basepath,MAXSIZE);
 
-			strncat(fullname,"/",2048);
+			strncat(fullname,"/",MAXSIZE);
 
-			strncat(fullname,de->d_name,2048);
+			strncat(fullname,de->d_name,MAXSIZE);
 
 			printf("%s:directory\n",fullname);
 
 			lsa(fullname);
 
-			memset(fullname,0x0,2048);
+			memset(fullname,0x0,MAXSIZE);
 		}
 
 		else if ((de->d_type==DT_REG))	{
 			
-			strncat(fullname,basepath,2048);
+			strncat(fullname,basepath,MAXSIZE);
 
-			strncat(fullname,"/",2048);
+			strncat(fullname,"/",MAXSIZE);
 
-			strncat(fullname,de->d_name,2048);
+			strncat(fullname,de->d_name,MAXSIZE);
 			
 			printf("%s:file\n",fullname);
 			
-			memset(fullname,0x0,2048);
+			memset(fullname,0x0,MAXSIZE);
 		}
 
 		else	{
@@ -266,9 +273,16 @@ void do_chmod(const unsigned char*dest,const unsigned char*src)	{
 
 	memset(&tmp,0x0,sizeof(stat));
 
-	stat(src,&tmp);
+	if (stat(src,&tmp)) {
+		
+		perror("stat");	
 
-	chmod(dest,tmp.st_mode);
+	}
+
+	if (chmod(dest,tmp.st_mode & 07777))	{
+		
+		perror("chmod");
+	}
 }
 
 void do_chown(const unsigned char * dest,const unsigned char * src)	{
@@ -286,31 +300,39 @@ void do_chown(const unsigned char * dest,const unsigned char * src)	{
 	struct passwd * pwd = getpwuid(info.st_uid);
 
 	struct group * grp = getgrgid(info.st_gid);
-
+	
 	if (pwd == NULL)	{
 		
-		fprintf(stderr,"%s:Failed to get uid of sourcefile\n",src);	
-		
-		exit(1);
-
-	}	
-	
-	uid = pwd->pw_uid;
-
-	if (grp==NULL)	{
-		
-		fprintf(stderr,"%s:Failed to get gid of destination file\n",src);
-		
-		exit(1);	
+		fprintf(stderr,"%s:Failed to get uid of sourcefile using getpwuid\n",src);	
+				
+		uid = info.st_uid;
 	}
 
-	gid = grp->gr_gid;
+	else			{	
+	
+		uid = pwd->pw_uid;
 
+	}
+	
+	if (grp==NULL)	{
+		
+		fprintf(stderr,"%s:Failed to get gid of destination file using getgrgid\n",src);
+
+		gid = info.st_gid;
+		
+	}
+
+	else		{
+	
+		gid = grp->gr_gid;
+
+	}
+	
+	
 	if (chown(dest,uid,gid) == -1)	{
 		
 		fprintf(stderr,"%s:Failed to change file and ownership permissions of destination file\n");
 		
-		exit(1);
 	}
 
 }

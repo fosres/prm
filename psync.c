@@ -566,20 +566,6 @@ int main(int argc,char**argv)	{
 
 	size_t n = 0;
 
-	
-
-#if 0	
-	printf("Enter Password:");
-
-	while ( ( (*c = getchar()) != 0xa ) && ( n < MAXSIZE ) )	{
-		
-		c++;
-
-		n++;
-	}
-
-	printf("Entered Password:%s\n",pwd);
-#endif
 	while (!get_pass(pwd,repwd,MAXSIZE,stdin))	{
 		
 		memset(pwd,0x0,MAXSIZE*sizeof(unsigned char));	
@@ -598,10 +584,6 @@ int main(int argc,char**argv)	{
 	
 	sodium_munlock(pwd,MAXSIZE*sizeof(unsigned char));	
 
-	printf("out:%s\n",out);
-
-	printf("outlen:%llu\n",strnlen(out,crypto_secretstream_xchacha20poly1305_KEYBYTES));
-
 //	delete(argv[2],argv[1],out);
 
 //	ensync(argv[2],argv[1],out);
@@ -611,8 +593,6 @@ int main(int argc,char**argv)	{
 	sodium_munlock(salt,crypto_pwhash_SALTBYTES);
 	
 	sodium_munlock(out,crypto_pwhash_STRBYTES);
-	
-	
 	
 	return 0;
 }

@@ -199,67 +199,6 @@ void delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 
 }
 
-void lsa(char*basepath)	{
-	
-	struct dirent *de = 0; //Pointer for entry
-
-	DIR * dr = opendir(basepath);
-
-	unsigned char fullname[MAXSIZE];
-
-	memset(fullname,0x0,MAXSIZE);
-
-	if (dr == NULL) // opendir
-	{
-		printf("Could not open current directory");
-	}
-
-	while ((de = readdir(dr)) != NULL)		{
-		
-		if (	(strcmp(de->d_name,".")==0) || (strcmp(de->d_name,"..")==0)	)	{
-			continue;
-		}
-
-		else if ((de->d_type==DT_DIR))	{
-
-			//You actually need to concatenate the full path name from argv, rename it basepath
-			
-			strncat(fullname,basepath,MAXSIZE);
-
-			strncat(fullname,"/",MAXSIZE);
-
-			strncat(fullname,de->d_name,MAXSIZE);
-
-			printf("%s:directory\n",fullname);
-
-			lsa(fullname);
-
-			memset(fullname,0x0,MAXSIZE);
-		}
-
-		else if ((de->d_type==DT_REG))	{
-			
-			strncat(fullname,basepath,MAXSIZE);
-
-			strncat(fullname,"/",MAXSIZE);
-
-			strncat(fullname,de->d_name,MAXSIZE);
-			
-			printf("%s:file\n",fullname);
-			
-			memset(fullname,0x0,MAXSIZE);
-		}
-
-		else	{
-
-			continue;
-		}	
-
-	}
-
-	closedir(dr);
-
-}
 
 #if 0
 

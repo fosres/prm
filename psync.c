@@ -1,4 +1,6 @@
 #if 0
+https://stackoverflow.com/questions/6856635/hide-password-input-on-terminal
+
 https://security.stackexchange.com/questions/176974/why-is-accessing-kernel-memory-a-security-risk
 
 https://security.stackexchange.com/questions/31390/whats-a-good-secure-file-deleter?rq=1
@@ -13,7 +15,7 @@ https://stackoverflow.com/questions/7328327/how-to-get-files-owner-name-in-linux
 
 https://stackoverflow.com/questions/2256945/removing-a-non-empty-directory-programmatically-in-c-or-c
 #endif
-
+#include <termios.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -28,6 +30,84 @@ https://stackoverflow.com/questions/2256945/removing-a-non-empty-directory-progr
 #include "acl.h"
 
 #define CHUNK_SIZE	4096
+
+#define MAXSIZE		2048
+
+//my_getpass accepts a password no larger than MAXSIZE bytes
+
+int get_pass(unsigned char * pwd,unsigned char * repwd,const size_t MAX_SIZE, FILE * stream)	{
+	
+	unsigned char * p = pwd;
+
+	unsigned char * r = repwd;
+
+	struct termios old = {0},new = {0};
+
+	size_t n = 0;
+
+	//Turn echoing into stdout off and exit if my_getpass cannot.
+	
+	if (tcgetattr(fileno(stream),&old) != 0)	{
+		
+		fprintf(stderr,"Error: Failed to turn off echoing with tcgetaddr().\n");
+
+		return 0;
+	}
+
+	new = old;
+
+	new.c_lflag &= ~ECHO;
+
+	if (tcsetattr(fileno(stream),TCSAFLUSH,&new) != 0)	{
+		
+		fprintf(stderr,"Error: Failed to turn off echoing with tcsetaddr().\n");
+
+		return 0;
+	}
+
+	//Now read the password form stdin
+	
+	printf("Enter Password:");
+
+	while ( ( (*p = getchar()) != 0xa ) && ( n < MAX_SIZE ) )	{
+		
+		p++;
+
+		n++;
+	}
+
+	putchar(0xa);
+	
+	n = 0;
+	
+	printf("Reenter Password:");
+
+	while ( ( ( *r = getchar()) != 0xa ) && ( n < MAX_SIZE) )	{
+		
+		r++;
+
+		n++;
+
+	}
+
+	putchar(0xa);
+
+	n = 0;
+
+	//Restoring terminal to echoing:
+	
+	(void) tcsetattr(fileno(stream),TCSAFLUSH,&old);
+
+	if ( strcmp(pwd,repwd) != 0 )	{
+		
+		fprintf(stderr,"Error:Passwords do not match. Try again.\n");
+		
+		return 0;
+	}
+
+	return 1;
+	
+}
 
 void create_dir_clone(const unsigned char*dest,const unsigned char*src)	{
 	
@@ -211,10 +291,10 @@ int encp(const unsigned char*dest,const unsigned char*src,const unsigned char*ou
 		
 		fprintf(stderr,"Error: Encryption failed\n");	
 
-		return 1;
+		return 0;
 	}
 
-	return 0;
+	return 1;
 }
 
 //quickly decrypts file using key as defined in out
@@ -225,10 +305,10 @@ int dencp(const unsigned char*dest,const unsigned char*src,const unsigned char*o
 		
 		fprintf(stderr,"Error: Decryption failed\n");	
 		
-		return 1;
+		return 0;
 	}
 
-	return 0;
+	return 1;
 }
 
 // The main function that copies files and automatically encrypts them at destination. Just files without concerns over date,time, chmod permissions, etc.
@@ -256,13 +336,13 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 
 	DIR * dr = opendir(srcpath);
 
-	unsigned char src_fullname[2048];
+	unsigned char src_fullname[MAXSIZE];
 
-	memset(src_fullname,0x0,2048);
+	memset(src_fullname,0x0,MAXSIZE);
 
-	unsigned char dest_fullname[2048];
+	unsigned char dest_fullname[MAXSIZE];
 	
-	memset(dest_fullname,0x0,2048);
+	memset(dest_fullname,0x0,MAXSIZE);
 
 	if (dr == NULL) // opendir
 	{
@@ -280,50 +360,54 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 
 			//You actually need to concatenate the full path name from argv, rename it srcpath
 			
-			strncat(src_fullname,srcpath,2048);
+			strncat(src_fullname,srcpath,MAXSIZE);
 
-			strncat(src_fullname,"/",2048);
+			strncat(src_fullname,"/",MAXSIZE);
 
-			strncat(src_fullname,de->d_name,2048);
+			strncat(src_fullname,de->d_name,MAXSIZE);
 			
-			strncat(dest_fullname,destpath,2048);
+			strncat(dest_fullname,destpath,MAXSIZE);
 
-			strncat(dest_fullname,"/",2048);
+			strncat(dest_fullname,"/",MAXSIZE);
 
-			strncat(dest_fullname,de->d_name,2048);
+			strncat(dest_fullname,de->d_name,MAXSIZE);
 			
 			create_dir_clone(dest_fullname,src_fullname);
 
 			ensync(dest_fullname,src_fullname,out);	
 				
-			memset(dest_fullname,0x0,2048);
+			memset(dest_fullname,0x0,MAXSIZE);
 			
-			memset(src_fullname,0x0,2048);
+			memset(src_fullname,0x0,MAXSIZE);
 		}
 
 		else if ((de->d_type==DT_REG))	{
 			
-			strncat(src_fullname,srcpath,2048);
+			strncat(src_fullname,srcpath,MAXSIZE);
 
-			strncat(src_fullname,"/",2048);
+			strncat(src_fullname,"/",MAXSIZE);
 			
-			strncat(src_fullname,de->d_name,2048);
+			strncat(src_fullname,de->d_name,MAXSIZE);
 			
-			strncat(dest_fullname,destpath,2048);
+			strncat(dest_fullname,destpath,MAXSIZE);
 
-			strncat(dest_fullname,"/",2048);
+			strncat(dest_fullname,"/",MAXSIZE);
 			
-			strncat(dest_fullname,de->d_name,2048);
+			strncat(dest_fullname,de->d_name,MAXSIZE);
 			
-			encp(dest_fullname,src_fullname,out);
+			if(!encp(dest_fullname,src_fullname,out))	{
+				
+				exit(1);	
+				
+			}
 
 			do_chmod(dest_fullname,src_fullname);
 
 			do_chown(dest_fullname,src_fullname);
 
-			memset(src_fullname,0x0,2048);
+			memset(src_fullname,0x0,MAXSIZE);
 			
-			memset(dest_fullname,0x0,2048);
+			memset(dest_fullname,0x0,MAXSIZE);
 		}
 
 		else	{
@@ -362,13 +446,13 @@ void dsync(const unsigned char*destpath,const unsigned char*srcpath,const unsign
 
 	DIR * dr = opendir(srcpath);
 
-	unsigned char src_fullname[2048];
+	unsigned char src_fullname[MAXSIZE];
 
-	memset(src_fullname,0x0,2048);
+	memset(src_fullname,0x0,MAXSIZE);
 
-	unsigned char dest_fullname[2048];
+	unsigned char dest_fullname[MAXSIZE];
 	
-	memset(dest_fullname,0x0,2048);
+	memset(dest_fullname,0x0,MAXSIZE);
 
 	if (dr == NULL) // opendir
 	{
@@ -386,50 +470,54 @@ void dsync(const unsigned char*destpath,const unsigned char*srcpath,const unsign
 
 			//You actually need to concatenate the full path name from argv, rename it srcpath
 			
-			strncat(src_fullname,srcpath,2048);
+			strncat(src_fullname,srcpath,MAXSIZE);
 
-			strncat(src_fullname,"/",2048);
+			strncat(src_fullname,"/",MAXSIZE);
 
-			strncat(src_fullname,de->d_name,2048);
+			strncat(src_fullname,de->d_name,MAXSIZE);
 			
-			strncat(dest_fullname,destpath,2048);
+			strncat(dest_fullname,destpath,MAXSIZE);
 
-			strncat(dest_fullname,"/",2048);
+			strncat(dest_fullname,"/",MAXSIZE);
 
-			strncat(dest_fullname,de->d_name,2048);
+			strncat(dest_fullname,de->d_name,MAXSIZE);
 			
 			create_dir_clone(dest_fullname,src_fullname);
 
 			dsync(dest_fullname,src_fullname,out);	
 				
-			memset(dest_fullname,0x0,2048);
+			memset(dest_fullname,0x0,MAXSIZE);
 			
-			memset(src_fullname,0x0,2048);
+			memset(src_fullname,0x0,MAXSIZE);
 		}
 
 		else if ((de->d_type==DT_REG))	{
 			
-			strncat(src_fullname,srcpath,2048);
+			strncat(src_fullname,srcpath,MAXSIZE);
 
-			strncat(src_fullname,"/",2048);
+			strncat(src_fullname,"/",MAXSIZE);
 			
-			strncat(src_fullname,de->d_name,2048);
+			strncat(src_fullname,de->d_name,MAXSIZE);
 			
-			strncat(dest_fullname,destpath,2048);
+			strncat(dest_fullname,destpath,MAXSIZE);
 
-			strncat(dest_fullname,"/",2048);
+			strncat(dest_fullname,"/",MAXSIZE);
 			
-			strncat(dest_fullname,de->d_name,2048);
+			strncat(dest_fullname,de->d_name,MAXSIZE);
 			
-			dencp(dest_fullname,src_fullname,out);
+			if(!dencp(dest_fullname,src_fullname,out))	{
+				
+				exit(1);
+
+			}
 
 			do_chmod(dest_fullname,src_fullname);
 
 			do_chown(dest_fullname,src_fullname);
 
-			memset(src_fullname,0x0,2048);
+			memset(src_fullname,0x0,MAXSIZE);
 			
-			memset(dest_fullname,0x0,2048);
+			memset(dest_fullname,0x0,MAXSIZE);
 		}
 
 		else	{
@@ -464,19 +552,26 @@ int main(int argc,char**argv)	{
 
 	sodium_mlock(out,crypto_pwhash_STRBYTES);
 
-	unsigned char pwd[2048];
+	unsigned char pwd[MAXSIZE];
 
-	memset(pwd,0x0,2048);
+	memset(pwd,0x0,MAXSIZE);
 
-	sodium_mlock(pwd,2048*sizeof(unsigned char));
+	unsigned char repwd[MAXSIZE];
+
+	memset(repwd,0x0,MAXSIZE);
+
+	sodium_mlock(pwd,MAXSIZE*sizeof(unsigned char));
+	
+	sodium_mlock(repwd,MAXSIZE*sizeof(unsigned char));
 
 	size_t n = 0;
 
-	unsigned char * c = pwd;
 	
+
+#if 0	
 	printf("Enter Password:");
 
-	while ( ( (*c = getchar()) != 0xa ) && ( n < 2048 ) )	{
+	while ( ( (*c = getchar()) != 0xa ) && ( n < MAXSIZE ) )	{
 		
 		c++;
 
@@ -484,30 +579,40 @@ int main(int argc,char**argv)	{
 	}
 
 	printf("Entered Password:%s\n",pwd);
-	
-	printf("Salt:%s\n",salt);
+#endif
+	while (!get_pass(pwd,repwd,MAXSIZE,stdin))	{
+		
+		memset(pwd,0x0,MAXSIZE*sizeof(unsigned char));	
+		
+		memset(repwd,0x0,MAXSIZE*sizeof(unsigned char));	
+	};
 
+	sodium_munlock(repwd,MAXSIZE*sizeof(unsigned char));	
 
-	if(crypto_pwhash(out,crypto_pwhash_STRBYTES,pwd,strnlen(pwd,2048),salt,crypto_pwhash_OPSLIMIT_SENSITIVE,crypto_pwhash_MEMLIMIT_SENSITIVE,crypto_pwhash_ALG_DEFAULT) != 0)	{
+	if(crypto_pwhash(out,crypto_pwhash_STRBYTES,pwd,strnlen(pwd,MAXSIZE),salt,crypto_pwhash_OPSLIMIT_SENSITIVE,crypto_pwhash_MEMLIMIT_SENSITIVE,crypto_pwhash_ALG_DEFAULT) != 0)	{
 		
 		fprintf(stderr,"Error: Ran out of memory for pwhash\n");
 
 		exit(1);
 	}
+	
+	sodium_munlock(pwd,MAXSIZE*sizeof(unsigned char));	
 
 	printf("out:%s\n",out);
 
 	printf("outlen:%llu\n",strnlen(out,crypto_secretstream_xchacha20poly1305_KEYBYTES));
 
-	delete(argv[2],argv[1],out);
+//	delete(argv[2],argv[1],out);
 
 //	ensync(argv[2],argv[1],out);
 	
-//	dsync(argv[2],argv[1],out);
+	dsync(argv[2],argv[1],out);
 
 	sodium_munlock(salt,crypto_pwhash_SALTBYTES);
 	
 	sodium_munlock(out,crypto_pwhash_STRBYTES);
-
+	
+	
+	
 	return 0;
 }

@@ -101,6 +101,11 @@ void unmark(const unsigned char*srcpath)	{
 
 void delete(const unsigned char*destpath,const unsigned char*srcpath)	{
 	
+	if (!dir_exists(destpath))	{
+		
+		return;
+	}	
+	
 	struct dirent *de = 0; //Pointer for entry
 
 	DIR * dr = opendir(destpath);
@@ -242,7 +247,6 @@ void do_chown(const unsigned char * dest,const unsigned char * src)	{
 	
 	if (pwd == NULL)	{
 		
-		fprintf(stderr,"%s:Failed to get uid of sourcefile using getpwuid\n",src);	
 				
 		uid = info.st_uid;
 	}
@@ -255,7 +259,6 @@ void do_chown(const unsigned char * dest,const unsigned char * src)	{
 	
 	if (grp==NULL)	{
 		
-		fprintf(stderr,"%s:Failed to get gid of destination file using getgrgid\n",src);
 
 		gid = info.st_gid;
 		

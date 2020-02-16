@@ -160,7 +160,6 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 		fprintf(stderr,"%s:Error: Failed to read source file during encryption\n",src);
 		
 		exit(1);
-
 	}
 
 	if ( ( out = fopen(dest,"wb")) == NULL )	{
@@ -168,7 +167,6 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 		fprintf(stderr,"%s:Error: Failed to create target file during encryption\n",dest);
 		
 		exit(1);
-
 	}
 
 	crypto_secretstream_xchacha20poly1305_init_push(&st,header,key);
@@ -292,7 +290,7 @@ int encp(const unsigned char*dest,const unsigned char*src,const unsigned char*ou
 	
 	if (encrypt(dest,src,out) != 0)	{
 		
-		fprintf(stderr,"Error: Encryption failed\n");	
+		fprintf(stderr,"Error:Encryption failed.\n");
 
 		return 0;
 	}
@@ -322,7 +320,7 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 
 	memset(&sb,0x0,sizeof(stat));
 
-	if ( (stat(srcpath,&sb) == 0 ) && S_ISREG(sb.st_mode) ) {
+	if ( (stat(srcpath,&sb) == 0 ) && !S_ISDIR(sb.st_mode) ) {
 		
 		encrypt(destpath,srcpath,out);
 		
@@ -384,7 +382,7 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 			memset(src_fullname,0x0,MAXSIZE);
 		}
 
-		else if ((de->d_type==DT_REG))	{
+		else /*if ((de->d_type==DT_REG))*/	{
 			
 			strncat(src_fullname,srcpath,MAXSIZE);
 
@@ -400,8 +398,8 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 			
 			if(!encp(dest_fullname,src_fullname,out))	{
 				
-				exit(1);	
-				
+				exit(1);
+
 			}
 
 			do_chown(dest_fullname,src_fullname);
@@ -414,11 +412,12 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 			memset(dest_fullname,0x0,MAXSIZE);
 		}
 
+#if 0
 		else	{
 
 			continue;
 		}	
-
+#endif
 	}
 
 	closedir(dr);
@@ -433,7 +432,7 @@ void dsync(const unsigned char*destpath,const unsigned char*srcpath,const unsign
 
 	memset(&sb,0x0,sizeof(stat));
 
-	if ( (stat(srcpath,&sb) == 0 ) && S_ISREG(sb.st_mode) ) {
+	if ( (stat(srcpath,&sb) == 0 ) && !S_ISDIR(sb.st_mode) ) {
 		
 		decrypt(destpath,srcpath,out);
 
@@ -496,7 +495,7 @@ void dsync(const unsigned char*destpath,const unsigned char*srcpath,const unsign
 			memset(src_fullname,0x0,MAXSIZE);
 		}
 
-		else if ((de->d_type==DT_REG))	{
+		else /*if ((de->d_type==DT_REG))*/	{
 			
 			strncat(src_fullname,srcpath,MAXSIZE);
 
@@ -525,12 +524,12 @@ void dsync(const unsigned char*destpath,const unsigned char*srcpath,const unsign
 			
 			memset(dest_fullname,0x0,MAXSIZE);
 		}
-
+#if 0
 		else	{
 
 			continue;
 		}	
-
+#endif
 	}
 
 	closedir(dr);
@@ -573,10 +572,12 @@ int main(int argc,char**argv)	{
 	size_t n = 0;
 	
 	sodium_munlock(pwd,MAXSIZE*sizeof(unsigned char));	
-	
-	while ( ( (*++argv) != NULL ) && ( (**argv) == '-') )	{
 
-		if ( strstr(*argv,"ensync") != NULL )	{
+	unsigned char ** argv_p = argv;
+	
+	while ( ( (*++argv_p) != NULL ) && ( (**argv_p) == '-') )	{
+
+		if ( strstr(*argv_p,"ensync") != NULL )	{
 			
 			while (!get_pass(pwd,repwd,MAXSIZE,stdin))	{
 				
@@ -594,14 +595,10 @@ int main(int argc,char**argv)	{
 				exit(1);
 			}
 
-			printf("argv[argc-2]:%s\n",argv[argc-2]);
-			
-			printf("argv[argc-3]:%s\n",argv[argc-3]);
-
-			ensync(argv[argc-2],argv[argc-3],out);
+			ensync(argv[argc-1],argv[argc-2],out);
 		}
 
-		else if ( strstr(*argv,"dsync") != NULL ) {
+		else if ( strstr(*argv_p,"dsync") != NULL ) {
 		
 			while (!get_pass(pwd,repwd,MAXSIZE,stdin))	{
 				
@@ -619,13 +616,13 @@ int main(int argc,char**argv)	{
 				exit(1);
 			}
 			
-			dsync(argv[argc-2],argv[argc-3],out);
+			dsync(argv[argc-1],argv[argc-2],out);
 
 		}
 
-		else if ( strstr(*argv,"delete") != NULL ) {
+		else if ( strstr(*argv_p,"delete") != NULL ) {
 
-			delete(argv[argc-2],argv[argc-3]);
+			delete(argv[argc-1],argv[argc-2]);
 
 		}
 

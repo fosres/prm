@@ -571,30 +571,66 @@ int main(int argc,char**argv)	{
 	sodium_mlock(repwd,MAXSIZE*sizeof(unsigned char));
 
 	size_t n = 0;
-
-	while (!get_pass(pwd,repwd,MAXSIZE,stdin))	{
-		
-		memset(pwd,0x0,MAXSIZE*sizeof(unsigned char));	
-		
-		memset(repwd,0x0,MAXSIZE*sizeof(unsigned char));	
-	};
-
-	sodium_munlock(repwd,MAXSIZE*sizeof(unsigned char));	
-
-	if(crypto_pwhash(out,crypto_pwhash_STRBYTES,pwd,strnlen(pwd,MAXSIZE),salt,crypto_pwhash_OPSLIMIT_SENSITIVE,crypto_pwhash_MEMLIMIT_SENSITIVE,crypto_pwhash_ALG_DEFAULT) != 0)	{
-		
-		fprintf(stderr,"Error: Ran out of memory for pwhash\n");
-
-		exit(1);
-	}
 	
 	sodium_munlock(pwd,MAXSIZE*sizeof(unsigned char));	
-
-//	delete(argv[2],argv[1],out);
-
-	ensync(argv[2],argv[1],out);
 	
-//	dsync(argv[2],argv[1],out);
+	while ( ( (*++argv) != NULL ) && ( (**argv) == '-') )	{
+
+		if ( strstr(*argv,"ensync") != NULL )	{
+			
+			while (!get_pass(pwd,repwd,MAXSIZE,stdin))	{
+				
+				memset(pwd,0x0,MAXSIZE*sizeof(unsigned char));	
+				
+				memset(repwd,0x0,MAXSIZE*sizeof(unsigned char));	
+			};
+
+			sodium_munlock(repwd,MAXSIZE*sizeof(unsigned char));	
+
+			if(crypto_pwhash(out,crypto_pwhash_STRBYTES,pwd,strnlen(pwd,MAXSIZE),salt,crypto_pwhash_OPSLIMIT_SENSITIVE,crypto_pwhash_MEMLIMIT_SENSITIVE,crypto_pwhash_ALG_DEFAULT) != 0)	{
+				
+				fprintf(stderr,"Error: Ran out of memory for pwhash\n");
+
+				exit(1);
+			}
+
+			printf("argv[argc-2]:%s\n",argv[argc-2]);
+			
+			printf("argv[argc-3]:%s\n",argv[argc-3]);
+
+			ensync(argv[argc-2],argv[argc-3],out);
+		}
+
+		else if ( strstr(*argv,"dsync") != NULL ) {
+		
+			while (!get_pass(pwd,repwd,MAXSIZE,stdin))	{
+				
+				memset(pwd,0x0,MAXSIZE*sizeof(unsigned char));	
+				
+				memset(repwd,0x0,MAXSIZE*sizeof(unsigned char));	
+			};
+
+			sodium_munlock(repwd,MAXSIZE*sizeof(unsigned char));	
+
+			if(crypto_pwhash(out,crypto_pwhash_STRBYTES,pwd,strnlen(pwd,MAXSIZE),salt,crypto_pwhash_OPSLIMIT_SENSITIVE,crypto_pwhash_MEMLIMIT_SENSITIVE,crypto_pwhash_ALG_DEFAULT) != 0)	{
+				
+				fprintf(stderr,"Error: Ran out of memory for pwhash\n");
+
+				exit(1);
+			}
+			
+			dsync(argv[argc-2],argv[argc-3],out);
+
+		}
+
+		else if ( strstr(*argv,"delete") != NULL ) {
+
+			delete(argv[argc-2],argv[argc-3]);
+
+		}
+
+	
+	}
 
 	sodium_munlock(salt,crypto_pwhash_SALTBYTES);
 	

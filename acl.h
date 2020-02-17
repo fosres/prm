@@ -3,7 +3,7 @@
 
 #define MAXSIZE	2048
 
-#define	4096
+#define	BUFFER	4096
 
 void lsa(char*basepath);
 

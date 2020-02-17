@@ -17,7 +17,6 @@ https://stackoverflow.com/questions/7624127/finding-the-owner-and-group-of-a-fil
 #include <errno.h>
 #include "acl.h"
 
-#define	4096
 
 void copy_symlink(unsigned char * dest,unsigned char * src)	{
 

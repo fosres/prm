@@ -159,7 +159,7 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 
 	memset(&sb,0x0,sizeof(stat));
 
-	if ( (stat(srcpath,&sb) == 0 ) && S_IFLNK(sb.st_mode) ) {
+	if ( (stat(src,&sb) == 0 ) && S_ISLNK(sb.st_mode) ) {
 		
 		copy_symlink(dest,src);
 
@@ -408,11 +408,11 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 			strncat(dest_fullname,de->d_name,MAXSIZE);
 			
 			copy_symlink(destpath,srcpath);
-			
+#if 0			
 			do_chown(dest_fullname,src_fullname);
 			
 			do_chmod(dest_fullname,src_fullname);
-			
+#endif			
 			memset(dest_fullname,0x0,MAXSIZE);
 			
 			memset(src_fullname,0x0,MAXSIZE);

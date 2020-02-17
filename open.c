@@ -7,9 +7,18 @@
 
 #define BUFFER	4096
 
+void copy_symlink(unsigned char * dest,unsigned char * src)	{
+
+	unsigned char buffer[BUFFER + 1];
+
+	readlink(src,buffer,BUFFER);
+
+	symlink(buffer,dest);
+
+}
+
 int main(int argc,char**argv)	{
 	
-
 #if 0
 	Open new or existing file for reading
 	
@@ -18,26 +27,19 @@ int main(int argc,char**argv)	{
 	file permissions read+write for owner
 	
 	and nothing for all others.
-#endif	
-	int fd = open(argv[1],O_RDONLY);
+#endif
+
+#if 0
+	int fd = open(argv[1],O_RDONLY | O_NOFOLLOW);
 	
 	if (fd == -1)	{
 		fprintf(stderr,"%s:Failed to open file\n",argv[1]);
 		exit(1);
 	
 	}
+#endif
 
-	unsigned char buffer[BUFFER + 1];
+	copy_symlink(argv[2],argv[1]);
 
-	size_t read_size = 0;
-
-	while ( ( (read_size = read(fd,buffer,BUFFER)) != 0 ) && (read_size != 0) ) 	{
-		
-		buffer[BUFFER] = 0;
-
-		printf("%s",buffer);		
-
-	}
-	
 	return 0;
 }

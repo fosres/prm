@@ -35,3 +35,22 @@ Execute permission (third character)	-	The file cannot be executed.	The director
 
 'T'	Same as t, but x is not set; rare on regular files, and useless on folders.
 
+February 19, 2019 at 1:44:26 PM
+
+I have decided to add support for distributed version control in prm. This means each and every user of a shared file or directory will be able to see a complete history of all the exact changes they have personally made to the file or directory. Each users' changes will only be visible to that user as it is a part of their personal work history. This idea is inspired directly off of git. The distributed version control is based on three different famous algorithms:
+
+1. The rsync delta transfer algorithm
+
+2. Git's changelog system
+
+3. Btrfs's copy-on-write filsystem.
+
+Each of these three algorithms have their own unique stregnths. 
+
+1. Rsync's delta transfer algorithm became internationally famous for the efficiency at which it could transfer files across a weak internet connection. It is even more suitable than git itself for cloud storage of directories in your machine, regardless of the type of file being stored. This is something git lacks in. git was only designed to deal with simple, regular source code text files. When people attempt to use git as a cloud-storage provider, git often completely fails to even upload the entire directory. This may be since git actually tries to reference a complete copy of every single save-instance of every file in the directory.
+
+2. Git's changelog system has something to teach us about distributed version control and determinging if a backup file must be edited. Git uses the SHA1 checksum to determine if two versions of a file are identical. In the prm project, the SHA512 checksum will be used to determine if two distinct versions of a 512-byte memory block in two distinct versions of a file are different. Git's distributed version control also made project collaboration much more efficient. Each and every contributor can work on their own version of the project in their local machine and upload code suggestions to a directory on the host server that was separate from the main directory where the project was hosted. From this separate directory.
+
+3. Btrfs's copy-on-write filesystem is designed to automatically keep a changelog of every file's history within a directory. For instance, its Incremental Snapshot Transfer implies it can backup and restore even faster than rsync's delta transfer algorithm incremental snapshot transfer technique. To do this effectively, Btrfs's filesystem implements B-Tree data structures to quickly retrieve the write information.
+
+Combining these three best qualities of each will make psync an incredibly efficient file transfer system. T

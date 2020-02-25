@@ -332,7 +332,7 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 	memset(&sb,0x0,sizeof(stat));
 
 	if ( (stat(srcpath,&sb) == 0 ) && !S_ISDIR(sb.st_mode) ) {
-		
+
 		encrypt(destpath,srcpath,out);
 		
 		do_chown(destpath,srcpath);

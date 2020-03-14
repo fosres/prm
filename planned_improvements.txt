@@ -126,3 +126,9 @@ The following is based on a hexdump output of "prm_bkup_protonmail.c" after the 
 +00000050:  37 52 c3 9b c3 98 c3 a8 10 c3 ae 6c c3 9d c2 8b  7R·········l····
 
 You can easily spot those 0xc2 and 0xc3 bytes that were not in the original hexdump. The hexdump output files mentioned in this section are now a part of this git repository for your reference.
+
+Hello Zane, there are two problems you can try to tackle:
+
+1. Try to fix all the bugs where psync fails to copy a file. For instance, psync is failing to copy broken symbolic links. Something rsync is capable of doing.
+
+2. This bug is much easier: Simply get psync to disown its own process after inputting the password for encryption/decryption. That way, psync will just run in the background like I would for rsync

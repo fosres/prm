@@ -22,7 +22,11 @@ void copy_symlink(unsigned char * dest,unsigned char * src)	{
 
 	unsigned char buffer[BUFFER + 1];
 
+	memset(buffer,0x0,sizeof(BUFFER+1));
+
 	readlink(src,buffer,BUFFER);
+	
+	printf("copy_symlink buffer size:%llu\n",strnlen(buffer,BUFFER+1));
 
 	symlink(buffer,dest);
 

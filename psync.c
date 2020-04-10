@@ -161,6 +161,8 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 
 	if ( (stat(src,&sb) == 0 ) && S_ISLNK(sb.st_mode) ) {
 		
+		printf("Its a link\n");
+	
 		copy_symlink(dest,src);
 
 		return 0;
@@ -334,7 +336,7 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 	if ( (stat(srcpath,&sb) == 0 ) && !S_ISDIR(sb.st_mode) ) {
 
 		encrypt(destpath,srcpath,out);
-		
+
 		do_chown(destpath,srcpath);
 
 		do_chmod(destpath,srcpath);
@@ -408,11 +410,11 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 			strncat(dest_fullname,de->d_name,MAXSIZE);
 			
 			copy_symlink(destpath,srcpath);
-#if 0			
+			
 			do_chown(dest_fullname,src_fullname);
 			
 			do_chmod(dest_fullname,src_fullname);
-#endif			
+			
 			memset(dest_fullname,0x0,MAXSIZE);
 			
 			memset(src_fullname,0x0,MAXSIZE);
@@ -631,6 +633,7 @@ int main(int argc,char**argv)	{
 
 				exit(1);
 			}
+			
 
 			ensync(argv[argc-1],argv[argc-2],out);
 		}

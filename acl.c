@@ -30,6 +30,7 @@ void copy_symlink(unsigned char * dest,unsigned char * src)	{
 
 	symlink(buffer,dest);
 
+
 }
 
 bool file_exists(const unsigned char*file)	{

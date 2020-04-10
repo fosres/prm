@@ -159,6 +159,8 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 
 	memset(&sb,0x0,sizeof(stat));
 
+	printf("Symbolic Link status: %llu %llu %llu %llu %llu %llu %llu %llu\n",S_ISDIR(sb.st_mode), S_ISCHR(sb.st_mode), S_ISBLK(sb.st_mode), S_ISREG(sb.st_mode), S_ISFIFO(sb.st_mode), S_ISLNK(sb.st_mode));
+
 	if ( (stat(src,&sb) == 0 ) && S_ISLNK(sb.st_mode) ) {
 		
 		printf("Its a link\n");
@@ -329,11 +331,21 @@ int dencp(const unsigned char*dest,const unsigned char*src,const unsigned char*o
 
 void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsigned char*out)	{
 	
+	printf("Encrypt time\n");
+	
 	struct stat sb;
+
+	unsigned char buf[4096];
 
 	memset(&sb,0x0,sizeof(stat));
 
-	if ( (stat(srcpath,&sb) == 0 ) && !S_ISDIR(sb.st_mode) ) {
+	memset(buf,0x0,sizeof(unsigned char)*4096);
+
+	stat(srcpath,&sb);
+
+	if ( !S_ISDIR(sb.st_mode) ) {
+		
+		printf("File encryption time\n");
 
 		encrypt(destpath,srcpath,out);
 
@@ -343,6 +355,15 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 		
 		return;		
 	}
+
+	if ( readlink(srcpath,buf,4096) > 0 )	{
+		
+		copy_symlink(destpath,srcpath);
+
+		return;
+	}
+	
+	printf("Dir time");
 
 	create_dir_clone(destpath,srcpath);
 
@@ -634,6 +655,7 @@ int main(int argc,char**argv)	{
 				exit(1);
 			}
 			
+			printf("Ensync time\n");
 
 			ensync(argv[argc-1],argv[argc-2],out);
 		}

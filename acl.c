@@ -29,8 +29,6 @@ void copy_symlink(unsigned char * dest,unsigned char * src)	{
 		return;
 
 	}
-	
-	printf("copy_symlink buffer size:%llu\n",strnlen(buffer,BUFFER+1));
 
 	symlink(buffer,dest);
 

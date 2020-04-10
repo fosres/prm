@@ -159,11 +159,11 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 
 	memset(&sb,0x0,sizeof(stat));
 
-	printf("Symbolic Link status: %llu %llu %llu %llu %llu %llu %llu %llu\n",S_ISDIR(sb.st_mode), S_ISCHR(sb.st_mode), S_ISBLK(sb.st_mode), S_ISREG(sb.st_mode), S_ISFIFO(sb.st_mode), S_ISLNK(sb.st_mode));
+	unsigned char buf[4096];
 
-	if ( (stat(src,&sb) == 0 ) && S_ISLNK(sb.st_mode) ) {
-		
-		printf("Its a link\n");
+	printf("%s: Symbolic Link status: %llu %llu %llu %llu %llu %llu %llu %llu\n",src,S_ISDIR(sb.st_mode), S_ISCHR(sb.st_mode), S_ISBLK(sb.st_mode), S_ISREG(sb.st_mode), S_ISFIFO(sb.st_mode), S_ISLNK(sb.st_mode));
+
+	if ( readlink(src,buf,BUFFER) > 0 ) {
 	
 		copy_symlink(dest,src);
 
@@ -331,8 +331,6 @@ int dencp(const unsigned char*dest,const unsigned char*src,const unsigned char*o
 
 void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsigned char*out)	{
 	
-	printf("Encrypt time\n");
-	
 	struct stat sb;
 
 	unsigned char buf[4096];
@@ -349,6 +347,8 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 
 		return;
 	}
+
+	memset(buf,0x0,sizeof(unsigned char)*4096);
 	
 	if ( !S_ISDIR(sb.st_mode) ) {
 		
@@ -362,8 +362,6 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 		
 		return;		
 	}
-	
-	printf("Dir time");
 
 	create_dir_clone(destpath,srcpath);
 
@@ -395,6 +393,10 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 
 			//You actually need to concatenate the full path name from argv, rename it srcpath
 			
+			memset(dest_fullname,0x0,MAXSIZE);
+			
+			memset(src_fullname,0x0,MAXSIZE);
+			
 			strncat(src_fullname,srcpath,MAXSIZE);
 
 			strncat(src_fullname,"/",MAXSIZE);
@@ -415,34 +417,13 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 			
 			memset(src_fullname,0x0,MAXSIZE);
 		}
+			
 
-		else if ((de->d_type==DT_LNK))		{
-			
-			strncat(src_fullname,srcpath,MAXSIZE);
-
-			strncat(src_fullname,"/",MAXSIZE);
-			
-			strncat(src_fullname,de->d_name,MAXSIZE);
-			
-			strncat(dest_fullname,destpath,MAXSIZE);
-
-			strncat(dest_fullname,"/",MAXSIZE);
-			
-			strncat(dest_fullname,de->d_name,MAXSIZE);
-			
-			copy_symlink(destpath,srcpath);
-			
-			do_chown(dest_fullname,src_fullname);
-			
-			do_chmod(dest_fullname,src_fullname);
+		else if ((de->d_type==DT_REG))			{
 			
 			memset(dest_fullname,0x0,MAXSIZE);
 			
 			memset(src_fullname,0x0,MAXSIZE);
-
-		}
-
-		else /*if ((de->d_type==DT_REG))*/	{
 			
 			strncat(src_fullname,srcpath,MAXSIZE);
 
@@ -472,6 +453,42 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 			memset(dest_fullname,0x0,MAXSIZE);
 		}
 
+		else							{
+			memset(dest_fullname,0x0,MAXSIZE);
+			
+			memset(src_fullname,0x0,MAXSIZE);
+
+			strncat(src_fullname,srcpath,MAXSIZE);
+
+			strncat(src_fullname,"/",MAXSIZE);
+			
+			strncat(src_fullname,de->d_name,MAXSIZE);
+
+			if ( readlink(src_fullname,buf,BUFFER) == 0 )	{
+				
+				continue;
+
+			}
+			
+			printf("Made it to d_type == DT_LNK");	
+			
+			strncat(dest_fullname,destpath,MAXSIZE);
+
+			strncat(dest_fullname,"/",MAXSIZE);
+			
+			strncat(dest_fullname,de->d_name,MAXSIZE);
+			
+			copy_symlink(dest_fullname,src_fullname);
+			
+			do_chown(dest_fullname,src_fullname);
+			
+			do_chmod(dest_fullname,src_fullname);
+			
+			memset(dest_fullname,0x0,MAXSIZE);
+			
+			memset(src_fullname,0x0,MAXSIZE);
+
+		}
 #if 0
 		else	{
 
@@ -654,8 +671,6 @@ int main(int argc,char**argv)	{
 
 				exit(1);
 			}
-			
-			printf("Ensync time\n");
 
 			ensync(argv[argc-1],argv[argc-2],out);
 		}

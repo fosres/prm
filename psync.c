@@ -343,6 +343,13 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 
 	stat(srcpath,&sb);
 
+	if ( readlink(srcpath,buf,4096) > 0 )	{
+		
+		copy_symlink(destpath,srcpath);
+
+		return;
+	}
+	
 	if ( !S_ISDIR(sb.st_mode) ) {
 		
 		printf("File encryption time\n");
@@ -354,13 +361,6 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 		do_chmod(destpath,srcpath);
 		
 		return;		
-	}
-
-	if ( readlink(srcpath,buf,4096) > 0 )	{
-		
-		copy_symlink(destpath,srcpath);
-
-		return;
 	}
 	
 	printf("Dir time");

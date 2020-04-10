@@ -24,7 +24,11 @@ void copy_symlink(unsigned char * dest,unsigned char * src)	{
 
 	memset(buffer,0x0,sizeof(BUFFER+1));
 
-	readlink(src,buffer,BUFFER);
+	if ( readlink(src,buffer,BUFFER) <= 0 )	{
+		
+		return;
+
+	}
 	
 	printf("copy_symlink buffer size:%llu\n",strnlen(buffer,BUFFER+1));
 

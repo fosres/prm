@@ -333,13 +333,15 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 	
 	struct stat sb;
 
-	unsigned char buf[4096];
+	unsigned char buf[BUFFER];
 
 	memset(&sb,0x0,sizeof(stat));
 
 	memset(buf,0x0,sizeof(unsigned char)*4096);
 
 	stat(srcpath,&sb);
+	
+	printf("%s: Symbolic Link status: DIR: %llu CHR: %llu BLK: %llu REG: %llu FIFO: %llu LNK: %llu\n",srcpath,S_ISDIR(sb.st_mode), S_ISCHR(sb.st_mode), S_ISBLK(sb.st_mode), S_ISREG(sb.st_mode), S_ISFIFO(sb.st_mode), S_ISLNK(sb.st_mode));
 
 	if ( readlink(srcpath,buf,4096) > 0 )	{
 		
@@ -384,10 +386,27 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 
 	while ((de = readdir(dr)) != NULL)		{
 		
+		memset(dest_fullname,0x0,MAXSIZE);
+		
+		memset(src_fullname,0x0,MAXSIZE);
+		
+		strncat(src_fullname,srcpath,MAXSIZE);
+
+		strncat(src_fullname,"/",MAXSIZE);
+
+		strncat(src_fullname,de->d_name,MAXSIZE);
+
+		struct stat sb;
+
+		stat(srcpath,&sb);
+		
+		printf("%s: Symbolic Link status: DIR: %llu CHR: %llu BLK: %llu REG: %llu FIFO: %llu LNK: %llu\n",srcpath,S_ISDIR(sb.st_mode), S_ISCHR(sb.st_mode), S_ISBLK(sb.st_mode), S_ISREG(sb.st_mode), S_ISFIFO(sb.st_mode), S_ISLNK(sb.st_mode));
+
 		if (	(strcmp(de->d_name,".")==0) || (strcmp(de->d_name,"..")==0)	)	{
 			
 			continue;
 		}
+		
 
 		else if ((de->d_type==DT_DIR))	{
 
@@ -454,6 +473,10 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 		}
 
 		else							{
+			
+			
+			memset(buf,0x0,sizeof(unsigned char)*BUFFER);
+
 			memset(dest_fullname,0x0,MAXSIZE);
 			
 			memset(src_fullname,0x0,MAXSIZE);
@@ -465,6 +488,8 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 			strncat(src_fullname,de->d_name,MAXSIZE);
 
 			if ( readlink(src_fullname,buf,BUFFER) == 0 )	{
+				
+				printf("Not a symbolic link file\n");
 				
 				continue;
 
@@ -487,14 +512,10 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 			memset(dest_fullname,0x0,MAXSIZE);
 			
 			memset(src_fullname,0x0,MAXSIZE);
+			
+			memset(buf,0x0,sizeof(unsigned char)*BUFFER);
 
 		}
-#if 0
-		else	{
-
-			continue;
-		}	
-#endif
 	}
 
 	closedir(dr);

@@ -20,9 +20,9 @@ https://stackoverflow.com/questions/7624127/finding-the-owner-and-group-of-a-fil
 
 void copy_symlink(unsigned char * dest,unsigned char * src)	{
 
-	unsigned char buffer[BUFFER + 1];
+	unsigned char buffer[BUFFER];
 
-	memset(buffer,0x0,sizeof(BUFFER+1));
+	memset(buffer,0x0,sizeof(BUFFER));
 
 	if ( readlink(src,buffer,BUFFER) <= 0 )	{
 		

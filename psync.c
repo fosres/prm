@@ -115,7 +115,7 @@ void create_dir_clone(const unsigned char*dest,const unsigned char*src)	{
 	
 	struct stat st = {0};
 
-	if ( stat(dest,&st) == -1 )	{
+	if ( lstat(dest,&st) == -1 )	{
 		
 		mkdir(dest,0700);
 
@@ -161,14 +161,19 @@ static int encrypt(const char*dest,const char*src,const unsigned char key[crypto
 
 	unsigned char buf[4096];
 
+	memset(buf,0x0,4096*sizeof(unsigned char));
+
 	printf("%s: Symbolic Link status: %llu %llu %llu %llu %llu %llu %llu %llu\n",src,S_ISDIR(sb.st_mode), S_ISCHR(sb.st_mode), S_ISBLK(sb.st_mode), S_ISREG(sb.st_mode), S_ISFIFO(sb.st_mode), S_ISLNK(sb.st_mode));
 
 	if ( readlink(src,buf,BUFFER) > 0 ) {
 	
 		copy_symlink(dest,src);
 
+
 		return 0;
 	}
+
+	memset(buf,0x0,4096*sizeof(unsigned char));
 	
 	if ( (in = fopen(src,"rb")) == NULL )	{
 		
@@ -238,6 +243,17 @@ static int decrypt(const char*dest,const char*src,const unsigned char key[crypto
 	int ret = -1;
 
 	unsigned char tag = 0;
+	
+	unsigned char buf[4096];
+
+	memset(buf,0x0,4096*sizeof(unsigned char));
+
+	if ( readlink(src,buf,BUFFER) > 0 ) {
+	
+		copy_symlink(dest,src);
+
+		return 0;
+	}
 
 	if ( (in = fopen(src,"rb")) == NULL )	{
 		fprintf(stderr,"Error: Failed to read source file during decryption\n");
@@ -339,7 +355,11 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 
 	memset(buf,0x0,sizeof(unsigned char)*4096);
 
-	stat(srcpath,&sb);
+	if ( lstat(srcpath,&sb))
+	{
+		fprintf(stderr,"lstat Error at line 344\n");
+		
+	}
 	
 	printf("%s: Symbolic Link status: DIR: %llu CHR: %llu BLK: %llu REG: %llu FIFO: %llu LNK: %llu\n",srcpath,S_ISDIR(sb.st_mode), S_ISCHR(sb.st_mode), S_ISBLK(sb.st_mode), S_ISREG(sb.st_mode), S_ISFIFO(sb.st_mode), S_ISLNK(sb.st_mode));
 
@@ -353,8 +373,6 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 	memset(buf,0x0,sizeof(unsigned char)*4096);
 	
 	if ( !S_ISDIR(sb.st_mode) ) {
-		
-		printf("File encryption time\n");
 
 		encrypt(destpath,srcpath,out);
 
@@ -398,12 +416,12 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 
 		struct stat sb;
 
-		stat(srcpath,&sb);
+		lstat(srcpath,&sb);
 		
 		printf("%s: Symbolic Link status: DIR: %llu CHR: %llu BLK: %llu REG: %llu FIFO: %llu LNK: %llu\n",srcpath,S_ISDIR(sb.st_mode), S_ISCHR(sb.st_mode), S_ISBLK(sb.st_mode), S_ISREG(sb.st_mode), S_ISFIFO(sb.st_mode), S_ISLNK(sb.st_mode));
 
 		if (	(strcmp(de->d_name,".")==0) || (strcmp(de->d_name,"..")==0)	)	{
-			
+	
 			continue;
 		}
 		
@@ -429,6 +447,8 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 			strncat(dest_fullname,de->d_name,MAXSIZE);
 			
 			create_dir_clone(dest_fullname,src_fullname);
+
+			printf("dest_fullname:%s\n",dest_fullname);
 
 			ensync(dest_fullname,src_fullname,out);	
 				
@@ -458,6 +478,7 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 			
 			if(!encp(dest_fullname,src_fullname,out))	{
 				
+				fprintf(stderr,"Error: failed to encrypt regular file\n");				
 				exit(1);
 
 			}
@@ -474,9 +495,8 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 
 		else							{
 			
-			
-			memset(buf,0x0,sizeof(unsigned char)*BUFFER);
-
+			printf("Made it to else");
+	
 			memset(dest_fullname,0x0,MAXSIZE);
 			
 			memset(src_fullname,0x0,MAXSIZE);
@@ -486,6 +506,8 @@ void ensync(const unsigned char*destpath,const unsigned char*srcpath,const unsig
 			strncat(src_fullname,"/",MAXSIZE);
 			
 			strncat(src_fullname,de->d_name,MAXSIZE);
+			
+			memset(buf,0x0,sizeof(unsigned char)*BUFFER);
 
 			if ( readlink(src_fullname,buf,BUFFER) == 0 )	{
 				
@@ -530,7 +552,9 @@ void dsync(const unsigned char*destpath,const unsigned char*srcpath,const unsign
 
 	memset(&sb,0x0,sizeof(stat));
 
-	if ( (stat(srcpath,&sb) == 0 ) && !S_ISDIR(sb.st_mode) ) {
+	//Below line must be about symbolic links
+
+	if ( ( lstat(srcpath,&sb) == 0 ) && !S_ISDIR(sb.st_mode) ) {
 		
 		decrypt(destpath,srcpath,out);
 

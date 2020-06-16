@@ -23,9 +23,7 @@ int main(int argc,char**argv)		{
 
 	readlink(argv[1],buf,BUFSIZE);
 
-	unsigned char * dest = "source_dest_link\0";
-
-	symlink(buf,dest);	
+	symlink(buf,argv[2]);	
 	
 	return 0;
 }

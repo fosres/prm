@@ -132,3 +132,11 @@ Hello Zane, there are two problems you can try to tackle:
 1. Try to fix all the bugs where psync fails to copy a file. For instance, psync is failing to copy broken symbolic links. Something rsync is capable of doing.
 
 2. This bug is much easier: Simply get psync to disown its own process after inputting the password for encryption/decryption. That way, psync will just run in the background like I would for rsync
+
+-------------------------------------------------------
+
+June 16, 2020
+
+The line 553 is causing the bug for decryption. You are trying to DECRYPT, then copy file and ownership permissions.
+
+The bug causing the problem for copying symbolic links is being caused by NOT first zeroing out buf BUFFER (size 4096 bytes) before copying symbolic link
